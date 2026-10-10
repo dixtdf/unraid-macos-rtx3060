@@ -1,0 +1,100 @@
+{
+  "recorded_date": "2026-10-11",
+  "record_type": "sanitized physical-VM validation after upgrading 1.1.0 to 1.9.0",
+  "environment_reference": "results/observed-2026-10-09.json",
+  "environment": {
+    "macos": "15.8.1",
+    "macos_build": "24H32",
+    "driver_package": "1.9.0",
+    "opencore": "1.0.5 RELEASE (unchanged)",
+    "gpu": "RTX 3060 12GB",
+    "physicalcpu": 10,
+    "logicalcpu": 20,
+    "memory_bytes": 17179869184,
+    "bar1_bytes": 8589934592,
+    "display_width": 1920,
+    "display_height": 1080,
+    "refresh_hz": 60
+  },
+  "package": {
+    "url": "https://github.com/nullmoth/nvidia-macos-driver/releases/download/v1.9.0/nullmoth-nvidia-1.9.0.tar.gz",
+    "bytes": 269295455,
+    "sha256": "573546d77d6999ef4f5a808b036da39fa99b4856909f02c7b95adef017a240f2",
+    "manifest_entries_verified": 53,
+    "installed_kext_binaries_match_package": true,
+    "loaded_kext_count": 4,
+    "binary_build_ids_changed_after_reboot": true,
+    "installer_completed": true,
+    "metal_allowlist_mode": "0644"
+  },
+  "metal": {
+    "buffer_copy_bytes": 4096,
+    "buffer_copy_pass": true,
+    "compute_elements": 256,
+    "runtime_compute_pass": true,
+    "render_size": [
+      64,
+      64
+    ],
+    "render_pass": true
+  },
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames_per_path": 30,
+    "H264": {
+      "hardware_encode_api_pass": true,
+      "encoder_is_hardware": true,
+      "encoded_frames": 30,
+      "hardware_encode_to_hardware_decode_pixels_pass": true,
+      "decoder_is_hardware": true,
+      "decoded_frames": 30,
+      "hw_path_luma_mae": 1.0855,
+      "hw_path_chroma_mae": 1.842255,
+      "software_encode_to_hardware_decode_pixels_pass": true,
+      "sw_to_hw_luma_mae": 11.377269,
+      "sw_to_hw_chroma_mae": 5.450667,
+      "strict_hardware_encoder_property_query_status": -12908
+    },
+    "HEVC": {
+      "hardware_encode_api_pass": true,
+      "encoder_is_hardware": true,
+      "encoded_frames": 30,
+      "hardware_encode_to_hardware_decode_pixels_pass": false,
+      "decoder_is_hardware": true,
+      "decoded_frames": 30,
+      "hw_path_luma_mae": 125.514815,
+      "hw_path_chroma_mae": 127.707778,
+      "software_encode_to_hardware_decode_pixels_pass": true,
+      "sw_to_hw_luma_mae": 0.144259,
+      "sw_to_hw_chroma_mae": 0.082181,
+      "strict_hardware_encoder_property_query_status": -12908
+    }
+  },
+  "system_checks": {
+    "apple_smc_services": 1,
+    "virtual_smc_services": 0,
+    "native_vnc_authentication_pass": true,
+    "native_vnc_login_window_pixels_verified": true,
+    "native_vnc_width": 1920,
+    "native_vnc_height": 1080,
+    "guest_warm_reboot_ssh_recovers": true,
+    "guest_normal_poweroff_qemu_shuts_off": true,
+    "domain_definition_semantically_unchanged": true,
+    "identity_regenerated": false,
+    "before_cold_checkpoint_qcow2_check_pass": true,
+    "before_cold_checkpoint_sha256_verified_files": 8,
+    "after_cold_checkpoint_complete": true,
+    "after_cold_checkpoint_qcow2_check_pass": true,
+    "after_cold_checkpoint_sha256_verified_files": 8
+  },
+  "limits": {
+    "glidebeam_logged_in_session_retested": false,
+    "hevc_hardware_encode_pixels_pass": false,
+    "long_running_stability_qualified": false,
+    "other_gpu_models_qualified": false,
+    "bitrate_control_qualified": false,
+    "full_opencl_workloads_qualified": false
+  }
+}

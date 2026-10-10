@@ -8,9 +8,9 @@ sysctl hw.physicalcpu hw.logicalcpu hw.memsize
 echo 'Display summary:'
 system_profiler SPDisplaysDataType
 echo 'AppleSMC service count (expected 1):'
-ioreg -r -c AppleSMC -d 0 | grep -c 'class AppleSMC' || true
+ioreg -r -c AppleSMC -d 0 | grep -c '<class AppleSMC,' || true
 echo 'VirtualSMC service count (expected 0 with -vsmccomp):'
-ioreg -r -c VirtualSMC -d 0 | grep -c 'class VirtualSMC' || true
+ioreg -r -c VirtualSMC -d 0 | grep -c '<class VirtualSMC,' || true
 echo 'Loaded graphics/SMC kexts:'
 kmutil showloaded 2>/dev/null | grep -E 'nullmoth|VirtualSMC' || true
 echo 'en0 built-in property (expected Yes):'

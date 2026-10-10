@@ -59,11 +59,11 @@ install -m 755 /boot/config/macos-rtx/qemu-bar-hook.sh /etc/libvirt/hooks/qemu.d
 
 ## 安装固定驱动包
 
-在 macOS 下载 [NullMoth v1.1.0 的预编译 tar.gz](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.1.0)。该发行资产 SHA256 为 `22478d83ed4d2b95711c2f001b40245e3198b6fb9716078c192e6ff18955d587`，先验证整包，再按包内 manifest 检查：
+当前已验收包为 [NullMoth v1.9.0 的预编译 tar.gz](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.9.0)。该发行资产 SHA256 为 `573546d77d6999ef4f5a808b036da39fa99b4856909f02c7b95adef017a240f2`，先验证整包，再按包内 manifest 检查：
 
 ```bash
-shasum -a 256 nullmoth-nvidia-1.1.0.tar.gz
-tar -xzf nullmoth-nvidia-1.1.0.tar.gz
+shasum -a 256 nullmoth-nvidia-1.9.0.tar.gz
+tar -xzf nullmoth-nvidia-1.9.0.tar.gz
 cd pkgroot
 shasum -a 256 -c SHA256SUMS
 sudo ./install.sh
@@ -72,8 +72,8 @@ sudo shutdown -r now
 
 此处走预编译包的手动路径，避免 1401 包装流程对 Ampere NVENC 的另外限制；不因此保证 Ampere 编码完全正确。系统若要求允许内核扩展，在“隐私与安全性”允许并再重启。安装失败时保存 log 与安装器给出的备份目录，先解决失败，不要继续切到纯直通画面。
 
-四个 kext 安装到 `/Library/Extensions`，从辅助内核集合加载；**不要再注入到 EFI/OC/Kexts**。Metal 插件在 `/Library/GPUBundles/NVMTLDriver.bundle`。主 kext 的 CFBundleVersion 显示 `0.1` 不等于装错 1.1.0 包，包版本应以下载资产、摘要和组件清单判定。
+四个 kext 安装到 `/Library/Extensions`，从辅助内核集合加载；**不要再注入到 EFI/OC/Kexts**。Metal 插件在 `/Library/GPUBundles/NVMTLDriver.bundle`。主 kext 的 CFBundleVersion 显示 `0.1` 不等于装错包，包版本应以下载资产、摘要和组件清单判定。
 
 若 PCI / framebuffer 已识别，但原生 Metal 枚举仍没有 NVIDIA 设备，先检查驱动日志、加载情况、`WindowServerMetalPluginName` 等注册属性；这次排查中使用过 `sudo sysctl -w debug.nvaccelfb=1` 触发注册。该 sysctl 是驱动内部接口，不是所有版本通用的安装步骤。先验证一次是否解决，再检查重启后自动注册状态，不要未经验证永久循环写入或反复重启 WindowServer。
 
-驱动升级、macOS 升级、改变显示器或刷新率后，重新完成[验收](06-validation-and-troubleshooting.md)。本记录不包含升级到 1.3.0 的结果。
+驱动升级、macOS 升级、改变显示器或刷新率后，重新完成[验收](06-validation-and-troubleshooting.md)。1.1.0 → 1.9.0 的备份和验收见[升级章节](09-driver-upgrade-1.9.0.md)；1.10.0 在 RTX 3060 上停止注册硬编码器，先读[兼容性说明](10-driver-upgrade-1.10.0.md)，不要套用 1.9.0 的硬编码结论。
