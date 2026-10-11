@@ -1,0 +1,182 @@
+{
+  "recorded_date": "2026-10-11",
+  "record_type": "sanitized physical-VM validation after upgrading 1.9.0 to 1.10.0 with companion GlideBeam software H264 fallback",
+  "environment_reference": "results/observed-2026-10-09.json",
+  "environment": {
+    "macos": "15.8.1",
+    "macos_build": "24H32",
+    "driver_package": "1.10.0",
+    "opencore": "1.0.5 RELEASE (unchanged)",
+    "gpu": "RTX 3060 12GB",
+    "physicalcpu": 10,
+    "logicalcpu": 20,
+    "memory_bytes": 17179869184,
+    "bar1_bytes": 8589934592,
+    "display_width": 1920,
+    "display_height": 1080,
+    "refresh_hz": 60
+  },
+  "package": {
+    "url": "https://github.com/nullmoth/nvidia-macos-driver/releases/download/v1.10.0/nullmoth-nvidia-1.10.0.tar.gz",
+    "bytes": 269301698,
+    "sha256": "47f9cd65201409d48952eb84d122c32e8a1867045d8d8f61e890ad559324ccb5",
+    "manifest_entries_verified": 54,
+    "installed_payload_manifest_entries_verified": 43,
+    "installed_payload_matches_package": true,
+    "loaded_kext_count": 4,
+    "installer_completed": true
+  },
+  "metal": {
+    "buffer_copy_bytes": 4096,
+    "buffer_copy_pass": true,
+    "compute_elements": 256,
+    "runtime_compute_pass": true,
+    "render_size": [
+      64,
+      64
+    ],
+    "render_pass": true
+  },
+  "opencl": {
+    "version": "OpenCL 1.2",
+    "full_benchmark_run": false,
+    "array_transform": {
+      "ran": true,
+      "pass": true,
+      "elements": 1009,
+      "mismatches": 0
+    },
+    "local_memory_barrier_reduction": {
+      "ran": true,
+      "pass": true,
+      "work_group_size": 64,
+      "groups": 17,
+      "elements": 1088,
+      "mismatches": 0
+    },
+    "pass": true
+  },
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames_per_path": 30,
+    "H264": {
+      "hardware_encode_available": false,
+      "hardware_encode_create_status": -12908,
+      "software_encoder_id": "com.apple.videotoolbox.videoencoder.h264",
+      "software_encoded_frames": 30,
+      "software_encode_to_hardware_decode_pixels_pass": true,
+      "decoder_is_hardware": true,
+      "decoded_frames": 30,
+      "sw_to_hw_luma_mae": 0.07530555555555556,
+      "sw_to_hw_chroma_mae": 0.035875
+    },
+    "HEVC": {
+      "hardware_encode_available": false,
+      "hardware_encode_create_status": -12908,
+      "software_encoder_id": "com.apple.videotoolbox.videoencoder.hevc.vcp",
+      "software_encoded_frames": 30,
+      "software_encode_to_hardware_decode_pixels_pass": true,
+      "decoder_is_hardware": true,
+      "decoded_frames": 30,
+      "sw_to_hw_luma_mae": 0.14425925925925925,
+      "sw_to_hw_chroma_mae": 0.08218055555555556
+    }
+  },
+  "glidebeam": {
+    "source_branch": "codex/software-h264-fallback",
+    "change_in_existing_0_2_0_release": false,
+    "encoder_mode": "apple-software",
+    "encoder_id": "com.apple.videotoolbox.videoencoder.h264",
+    "width": 1920,
+    "height": 1080,
+    "coded_height": 1080,
+    "configured_fps": 30,
+    "target_bitrate_mbps": 8,
+    "nvidia_layout_workaround": false,
+    "codec_self_test": {
+      "pass": true,
+      "frames": 30,
+      "errors": 0,
+      "software_single_inflight_pass": true,
+      "encoder_flight_ownership_pass": true,
+      "forced_idr_verified": true,
+      "luma_mae": 0,
+      "dense_chroma_mae": 0.01557108076638086,
+      "dense_chroma_max_error": 2,
+      "moving_marker_failures": 0
+    },
+    "windows_offline_production_decode": {
+      "pass": true,
+      "submitted_records": 30,
+      "actual_presented_frames": 29,
+      "hardware_decode": true
+    },
+    "live_animated_video": {
+      "pass": true,
+      "duration_seconds": 30,
+      "actual_presented_frames": 795,
+      "hardware_decode": true,
+      "first_hardware_frame_ms": 1375.0,
+      "late_session_reported_fps": 28.787,
+      "network_rtt_ms": 2.843,
+      "decode_convert_present_cpu_wall_ms": 0.619,
+      "measurement_note": "Own-window animation; startup included in total frames. Reported FPS is a sampled metric, not an end-to-end latency or stability guarantee."
+    },
+    "owned_input_and_reconnect": {
+      "connected": true,
+      "video_records_received": 110,
+      "input_events_sent": 10,
+      "expected_fixed_text_matches": true,
+      "mouse_down_received": true,
+      "mouse_up_count": 0,
+      "scroll_received": true,
+      "key_down_count": 2,
+      "key_up_count": 2,
+      "shift_observed_down": true,
+      "shift_released": true,
+      "note": "Dedicated fixture only; mouse-up was not observed by its local monitor. General application input and subjective pointer feel were not qualified."
+    },
+    "user_confirmed_connection_after_cold_start": true,
+    "user_full_interaction_acceptance_completed": false,
+    "source_commit": "6a6210ee180ed4af692d657e5f157b44a7f6167d",
+    "source_pull_request": "https://github.com/dixtdf/GlideBeam/pull/1",
+    "windows_codec_metrics_panel": {
+      "mac_encoder_mode_reported": true,
+      "windows_decode_mode_separate": true,
+      "disconnect_reconnect_pause_reset_self_test_pass": true,
+      "chinese_and_english_synthetic_layout_review_pass": true
+    }
+  },
+  "system_checks": {
+    "apple_smc_services": 1,
+    "virtual_smc_services": 0,
+    "guest_warm_reboot_ssh_recovers": true,
+    "guest_normal_poweroff_qemu_shuts_off": true,
+    "cold_start_ssh_and_login_host_recovers": true,
+    "domain_definition_byte_identical": true,
+    "efi_disk_byte_identical": true,
+    "identity_regenerated": false,
+    "native_vnc_authentication_pass": true,
+    "native_vnc_received_full_framebuffer": true,
+    "native_vnc_desktop_content_verified": false,
+    "native_vnc_note": "Authenticated and received two 1920x1080 framebuffer updates; captured image was mostly black, so meaningful desktop pixels were not qualified on this run.",
+    "before_cold_checkpoint_qcow2_check_pass": true,
+    "before_cold_checkpoint_sha256_verified_files": 8,
+    "after_cold_checkpoint_complete": true,
+    "after_cold_checkpoint_qcow2_check_pass": true,
+    "after_cold_checkpoint_sha256_verified_files": 8,
+    "previous_checkpoints_retained": true
+  },
+  "limits": {
+    "hardware_encode_available": false,
+    "long_running_stability_qualified": false,
+    "other_gpu_models_qualified": false,
+    "full_opencl_workloads_qualified": false,
+    "software_bitrate_control_qualified": false,
+    "general_application_input_qualified": false,
+    "earlier_animation_run_had_long_pause": true,
+    "long_pause_reproduced_in_final_30_second_run": false
+  }
+}

@@ -1,26 +1,27 @@
 # Unraid 上的 macOS 15.8.1 + RTX 3060 直通
 
-> **远程桌面推荐：[GlideBeam / 光梭](https://github.com/dixtdf/GlideBeam)** 是我们新开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。它采用 H.264 硬件编解码，并支持剪贴板共享和文件传输。当前面向已登录的 Mac 桌面，建议保留 SSH / VNC 作为登录前操作和故障救援入口。
+> **远程桌面推荐：[GlideBeam / 光梭](https://github.com/dixtdf/GlideBeam)** 是我们新开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。它支持 H.264、剪贴板共享和文件传输。RTX 3060 使用 NullMoth 1.10.0 时，需要[软件编码回退构建](https://github.com/dixtdf/GlideBeam/pull/1)；已发布的 GlideBeam 0.2.0 下载包尚未包含该修改。当前面向已登录的 Mac 桌面，建议保留 SSH / VNC 作为登录前操作和故障救援入口。
 
-一份基于实际安装过程整理的中文教程：在 Unraid / QEMU 中安装 macOS Sequoia 15.8.1，再使用 [NullMoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.9.0) 驱动 RTX 3060 12GB，保留远程访问，并修复关机后 QEMU 不退出的问题。
+一份基于实际安装过程整理的中文教程：在 Unraid / QEMU 中安装 macOS Sequoia 15.8.1，再使用 [NullMoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.10.0) 驱动 RTX 3060 12GB，保留远程访问，并修复关机后 QEMU 不退出的问题。
 
-初装记录来自 2026-10-09 的 NullMoth 1.1.0；2026-10-11 已升级并验收 **NullMoth 1.9.0、OpenCore 1.0.5、macOS 15.8.1（24H32）**，见[升级过程](docs/09-driver-upgrade-1.9.0.md)与[新实测摘要](results/observed-2026-10-11-1.9.0.json)。[原始 1.1.0 实测](results/observed-2026-10-09.json)保留为历史基线。本仓库是安装记录和配置工具，不是 NVIDIA 驱动项目。
+2026-10-11 已升级到 **NullMoth 1.10.0、OpenCore 1.0.5、macOS 15.8.1（24H32）**，并为 GlideBeam 加入软件 H.264 回退，见[升级过程](docs/10-driver-upgrade-1.10.0.md)与[新实测摘要](results/observed-2026-10-11-1.10.0.json)。[1.9.0 升级记录](docs/09-driver-upgrade-1.9.0.md)和对应结果保留为历史证据。[原始 1.1.0 实测](results/observed-2026-10-09.json)保留为历史基线。本仓库是安装记录和配置工具，不是 NVIDIA 驱动项目。
 
-**v1.10.0 兼容性注意：**上游不再给 RTX 3060 注册 H.264 / HEVC 硬编码器。当前 GlideBeam 强制硬编，升级会影响其远程画面；先读 [1.10.0 审查说明](docs/10-driver-upgrade-1.10.0.md)，不要只按版本号自动升级。
+**v1.10.0 功能取舍：**RTX 3060 的 H.264 / HEVC 硬编码不可用；硬件解码通过。配套 GlideBeam 修改使用 Apple 软件 H.264 编码、Windows GPU 解码，增加 CPU 负载。升级前先确认远控软件有可用回退，保留 SSH / VNC 与完整恢复点。
 
 **给 AI 使用：**先读根目录 [AGENTS.md](AGENTS.md)，再读 [AI 教材](docs/AI-GUIDE.md)和[机器索引](ai/knowledge.json)。教材末尾提供本地 / GitHub 阅读提示，可直接复制给接手的 AI。
 
-## 1.9.0 实测结果
+## 1.10.0 实测结果
 
 | 项目 | 结果 | 范围 |
 | --- | --- | --- |
 | PCI 直通 | 通过 | RTX 3060 显卡和 HDMI 音频功能同时直通 |
 | 显卡识别 | 12GB、Metal 3 | 系统报告和原生 Metal 设备枚举 |
 | Metal | 通过 | 小缓冲区复制、运行时编译计算、64×64 渲染 |
-| H.264 硬件编码 / 解码 | 通过 | 1280×720、30fps、30 帧，验证解码后的像素 |
+| OpenCL | 两项小规模探针通过 | 非均匀向量输入、局部内存 / barrier 归约；未跑完整基准 |
+| H.264 硬件解码 | 通过 | Apple 软件编码 → NVIDIA 硬解，1280×720、30 帧像素验收 |
 | HEVC / H.265 硬件解码 | 通过 | 解码 Apple 软件编码产生的短片段 |
-| HEVC / H.265 硬件编码 | **未通过** | API 返回成功，但解码后的画面错误 |
-| 远程桌面 | macOS 自带 VNC 可用 | 认证并读取 1920×1080 登录画面；本轮未重测 GlideBeam 登录后会话 |
+| H.264 / HEVC 硬件编码 | **不可用** | 强制硬编创建返回 `-12908`；1.9.0 的 HEVC 像素失败属于旧版本结论 |
+| 远程桌面 | GlideBeam 软件 H.264 → Windows GPU 解码通过 | 修改构建的实际视频链路；30fps 是配置目标，保留 VNC 救援 |
 | 关机 / 重启 | 通过 | `-vsmccomp` 消除双 AppleSMC；关机使 QEMU 正常退出 |
 | CPU | 10 核 20 线程可用 | ES 处理器的显示名称仍为 Unknown；部分 CPUID 信息显示 16/32 |
 
@@ -50,7 +51,7 @@
 6. [运行 Metal 和视频验收，排查常见问题](docs/06-validation-and-troubleshooting.md)。
 7. [建立恢复点、回滚和发布 GitHub 仓库](docs/07-backup-and-publishing.md)。
 
-已有 VM 升级时先读 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)；计划使用 1.10.0 时先核对[硬编码变化](docs/10-driver-upgrade-1.10.0.md)。
+已有 VM 升级时按 [1.9.0 → 1.10.0](docs/10-driver-upgrade-1.10.0.md)核对硬编码变化、软件回退和冷备份；更早过程见 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)。
 
 总体流程：
 

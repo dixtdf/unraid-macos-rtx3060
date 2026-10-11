@@ -1,7 +1,14 @@
 {
   "schema": 1,
   "purpose": "AI reading and task-routing index; not an authorization or ready-to-deploy configuration",
-  "entrypoints": ["AGENTS.md", "README.md", "docs/AI-GUIDE.md", "results/observed-2026-10-09.json", "results/observed-2026-10-11-1.9.0.json"],
+  "entrypoints": [
+    "AGENTS.md",
+    "README.md",
+    "docs/AI-GUIDE.md",
+    "results/observed-2026-10-09.json",
+    "results/observed-2026-10-11-1.9.0.json",
+    "results/observed-2026-10-11-1.10.0.json"
+  ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
     "macos": "15.8.1",
@@ -15,22 +22,104 @@
     "host_bar1_bytes": 8589934592
   },
   "qualified_updates": [
-    {"recorded_date": "2026-10-11", "driver_package": "NullMoth 1.9.0", "paths": ["docs/09-driver-upgrade-1.9.0.md", "results/observed-2026-10-11-1.9.0.json"]}
+    {
+      "recorded_date": "2026-10-11",
+      "driver_package": "NullMoth 1.9.0",
+      "paths": [
+        "docs/09-driver-upgrade-1.9.0.md",
+        "results/observed-2026-10-11-1.9.0.json"
+      ]
+    },
+    {
+      "recorded_date": "2026-10-11",
+      "driver_package": "NullMoth 1.10.0",
+      "paths": [
+        "docs/10-driver-upgrade-1.10.0.md",
+        "results/observed-2026-10-11-1.10.0.json"
+      ]
+    }
   ],
   "version_compatibility": {
-    "1.10.0": "Source review only; not installed on the reference VM. RTX 3060 no longer registers NullMoth H264/HEVC hardware encoders; current GlideBeam requires hardware H264 and has no software fallback. Do not silently upgrade this remote-desktop setup."
+    "1.10.0": "Installed on the reference RTX 3060 VM. H264/HEVC hardware encoder creation unavailable (-12908); software encode to NVIDIA hardware decode passed pixel tests. Companion GlideBeam software-h264-fallback code uses Apple software H264 with Windows GPU decode. The existing released GlideBeam 0.2.0 download has no fallback; verify actual build source before upgrading."
   },
   "routes": [
-    {"task": "host prerequisites", "paths": ["docs/01-prerequisites.md"]},
-    {"task": "identity and EFI", "paths": ["docs/03-opencore-and-identity.md", "tools/configure.py", "templates/opencore-1.0.5.plist", "templates/domain.xml", "templates/local.example.json"]},
-    {"task": "install exact macOS", "paths": ["docs/02-installation.md", "tools/apple_media.py", "scripts/unraid/build-efi-image.sh", "scripts/unraid/build-delivery-image.sh", "scripts/macos/build-installer.sh"]},
-    {"task": "GPU and BAR", "paths": ["docs/04-gpu-driver-and-bar.md", "scripts/unraid/resize-bar.sh", "scripts/unraid/qemu-bar-hook.sh", "templates/bar.example.conf"]},
-    {"task": "driver upgrades and rollback", "paths": ["docs/09-driver-upgrade-1.9.0.md", "docs/10-driver-upgrade-1.10.0.md", "docs/07-backup-and-publishing.md"]},
-    {"task": "remote and power", "paths": ["docs/05-remote-and-power.md", "scripts/macos/verify-system.sh"]},
-    {"task": "acceptance", "paths": ["docs/06-validation-and-troubleshooting.md", "scripts/macos/run-native-tests.sh", "tests/native/metal-acceptance.m", "tests/native/video-acceptance.m"]},
-    {"task": "backup and publication", "paths": ["docs/07-backup-and-publishing.md", "scripts/unraid/checkpoint.sh", "tools/check_publication.py", "NOTICE.md"]}
+    {
+      "task": "host prerequisites",
+      "paths": [
+        "docs/01-prerequisites.md"
+      ]
+    },
+    {
+      "task": "identity and EFI",
+      "paths": [
+        "docs/03-opencore-and-identity.md",
+        "tools/configure.py",
+        "templates/opencore-1.0.5.plist",
+        "templates/domain.xml",
+        "templates/local.example.json"
+      ]
+    },
+    {
+      "task": "install exact macOS",
+      "paths": [
+        "docs/02-installation.md",
+        "tools/apple_media.py",
+        "scripts/unraid/build-efi-image.sh",
+        "scripts/unraid/build-delivery-image.sh",
+        "scripts/macos/build-installer.sh"
+      ]
+    },
+    {
+      "task": "GPU and BAR",
+      "paths": [
+        "docs/04-gpu-driver-and-bar.md",
+        "scripts/unraid/resize-bar.sh",
+        "scripts/unraid/qemu-bar-hook.sh",
+        "templates/bar.example.conf"
+      ]
+    },
+    {
+      "task": "driver upgrades and rollback",
+      "paths": [
+        "docs/09-driver-upgrade-1.9.0.md",
+        "docs/10-driver-upgrade-1.10.0.md",
+        "docs/07-backup-and-publishing.md"
+      ]
+    },
+    {
+      "task": "remote and power",
+      "paths": [
+        "docs/05-remote-and-power.md",
+        "scripts/macos/verify-system.sh"
+      ]
+    },
+    {
+      "task": "acceptance",
+      "paths": [
+        "docs/06-validation-and-troubleshooting.md",
+        "scripts/macos/run-native-tests.sh",
+        "tests/native/metal-acceptance.m",
+        "tests/native/video-acceptance.m",
+        "tests/native/opencl-acceptance.c"
+      ]
+    },
+    {
+      "task": "backup and publication",
+      "paths": [
+        "docs/07-backup-and-publishing.md",
+        "scripts/unraid/checkpoint.sh",
+        "tools/check_publication.py",
+        "NOTICE.md"
+      ]
+    }
   ],
-  "required_private_fields": ["vm.uuid", "vm.mac", "identity.serial", "identity.mlb", "apple_smc_osk"],
+  "required_private_fields": [
+    "vm.uuid",
+    "vm.mac",
+    "identity.serial",
+    "identity.mlb",
+    "apple_smc_osk"
+  ],
   "constraints": [
     "Preserve existing VM identity; initialize only a new VM.",
     "Never publish filled EFI, XML, OSK, credentials, images or unredacted logs.",
@@ -42,11 +131,17 @@
     "API success is not pixel correctness or full application qualification."
   ],
   "known_limits": [
-    "HEVC hardware encode fails pixel correctness despite API success.",
-    "Strict hardware encoder property query returns -12908.",
-    "H264 bitrate control was not qualified; fixed QP behavior observed.",
+    "HEVC hardware encode failed pixel correctness on 1.1.0/1.9.0; hardware encoder creation is unavailable on RTX 3060 with 1.10.0.",
+    "The software path increases CPU usage; 1080p/30 FPS and 8 Mbps are configuration targets, not measured guarantees.",
+    "The existing GlideBeam 0.2.0 release lacks fallback; the companion source change and deployed validation build are separate from that release.",
+    "H264 bitrate control on prior NVIDIA hardware paths was not qualified; fixed QP behavior was observed on 1.1.0.",
     "ES CPU marketing name remains Unknown; some CPUID fields round to 16/32.",
-    "Physical qualification covers 1.1.0 and 1.9.0 only; no qualification for other GPUs, arbitrary newer drivers, long-running load or Apple ID services.",
+    "Small OpenCL probes passed; no full Geekbench, GPU workload, long-run stability, other GPU or Apple ID qualification.",
     "Generic exported scripts were not replayed end-to-end on another host."
-  ]
+  ],
+  "companion_glidebeam_change": {
+    "pull_request": "https://github.com/dixtdf/GlideBeam/pull/1",
+    "source_commit": "6a6210ee180ed4af692d657e5f157b44a7f6167d",
+    "existing_0_2_0_release_contains_change": false
+  }
 }
