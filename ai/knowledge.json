@@ -7,7 +7,11 @@
     "docs/AI-GUIDE.md",
     "results/observed-2026-10-09.json",
     "results/observed-2026-10-11-1.9.0.json",
-    "results/observed-2026-10-11-1.10.0.json"
+    "results/observed-2026-10-11-1.10.0.json",
+    "docs/11-driver-upgrade-1.13.0.md",
+    "docs/12-driver-upgrade-runbook.md",
+    "results/observed-2026-10-11-1.13.0.json",
+    "results/observed-2026-10-11-rollback-1.9.0.json"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -37,10 +41,30 @@
         "docs/10-driver-upgrade-1.10.0.md",
         "results/observed-2026-10-11-1.10.0.json"
       ]
+    },
+    {
+      "recorded_date": "2026-10-11",
+      "driver_package": "NullMoth 1.13.0",
+      "scope": "installed and native/software remote video validated; complete post checkpoint passed all 8 SHA and qcow2 checks; subsequently driver-only downgraded to 1.9.0",
+      "paths": [
+        "docs/11-driver-upgrade-1.13.0.md",
+        "results/observed-2026-10-11-1.13.0.json"
+      ]
+    },
+    {
+      "recorded_date": "2026-10-11",
+      "driver_package": "NullMoth 1.9.0 (driver-only downgrade)",
+      "scope": "42 Library payload checks and Metal pass; GlideBeam NVENC production pixels and Windows GPU live stream pass; OpenCL argument setup fails, HEVC hardware encode pixels fail, legacy H264 decoder input compatibility is limited; final complete checkpoint passed8SHA/sourcebytes/qcow2 and post-backup cold-start recovered",
+      "paths": [
+        "docs/11-driver-upgrade-1.13.0.md",
+        "results/observed-2026-10-11-rollback-1.9.0.json"
+      ]
     }
   ],
   "version_compatibility": {
-    "1.10.0": "Installed on the reference RTX 3060 VM. H264/HEVC hardware encoder creation unavailable (-12908); software encode to NVIDIA hardware decode passed pixel tests. Companion GlideBeam software-h264-fallback code uses Apple software H264 with Windows GPU decode. The existing released GlideBeam 0.2.0 download has no fallback; verify actual build source before upgrading."
+    "1.10.0": "Historical reference RTX3060 VM validation: H264/HEVC hardware encoder creation unavailable(-12908), software encode to NVIDIA hardware decode pixels passed. Companion GlideBeam fallback source uses AppleSW H264 and Windows GPU decode. Application version0.2.0 is a local-build field, not evidence of a formal release; verify exact commit/binary.",
+    "1.9.0": "Last release checked through 1.13.0 with Ampere H264 NVENC registration. Fresh driver-only downgrade completed; GlideBeam production H264 NVENC pixels pass with coded height1088 and Windows GPU real 30s/1374frames. OpenCL clSetKernelArg=-49, both kernels unexecuted; HEVC HW encode severe pixel failure; Apple SW H264 to NVIDIA HW decode YMAE11.3773 marginally below old threshold12 and not broad correctness.",
+    "1.13.0": "Blackwell-only H264/HEVC hardware encoder registration remains; RTX3060 RequireHardware returns -12908. Apple software encode to NVIDIA hardware decode pixels pass. GlideBeam software H264 to Windows GPU decode passes in a 30s owned-animation test; no input or VNC desktop-content acceptance in this run."
   },
   "routes": [
     {
@@ -81,6 +105,8 @@
     {
       "task": "driver upgrades and rollback",
       "paths": [
+        "docs/12-driver-upgrade-runbook.md",
+        "docs/11-driver-upgrade-1.13.0.md",
         "docs/09-driver-upgrade-1.9.0.md",
         "docs/10-driver-upgrade-1.10.0.md",
         "docs/07-backup-and-publishing.md"
@@ -128,20 +154,65 @@
     "Verify guest VNC/SSH before removing the virtual display.",
     "Keep QEMU AppleSMC and use -vsmccomp; expect one AppleSMC service.",
     "Keep ProvideCustomSlide=true and host-managed GPU BAR settings at -1.",
-    "API success is not pixel correctness or full application qualification."
+    "API success is not pixel correctness or full application qualification.",
+    "Driver-only downgrade must preserve current guest data; validate supported installer --payload, unmodified target manifests and truthful VERSION marker; full old-VDisk restoration is a separate recovery decision."
   ],
   "known_limits": [
-    "HEVC hardware encode failed pixel correctness on 1.1.0/1.9.0; hardware encoder creation is unavailable on RTX 3060 with 1.10.0.",
-    "The software path increases CPU usage; 1080p/30 FPS and 8 Mbps are configuration targets, not measured guarantees.",
-    "The existing GlideBeam 0.2.0 release lacks fallback; the companion source change and deployed validation build are separate from that release.",
+    "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
+    "Apple software fallback increases CPU usage; 1080p/30 FPS and 8 Mbps are fallback configuration targets, not measured guarantees. Current1.9 production hardware path configures60fps with codedheight1088.",
+    "There was no formal GlideBeam0.2.0 release/tag before v0.2.1. The public0.2.1 release is verified; current Mac remains the developer-signed6a6210e local build showing0.2.0 with fallback, without installing the release or resetting TCC.",
     "H264 bitrate control on prior NVIDIA hardware paths was not qualified; fixed QP behavior was observed on 1.1.0.",
     "ES CPU marketing name remains Unknown; some CPUID fields round to 16/32.",
-    "Small OpenCL probes passed; no full Geekbench, GPU workload, long-run stability, other GPU or Apple ID qualification.",
+    "Small OpenCL probes passed on1.10.0/1.13.0; the final1.9 driver-only downgrade fails argument setup before execution. No full Geekbench, long-run stability, other GPU or Apple ID qualification.",
     "Generic exported scripts were not replayed end-to-end on another host."
   ],
   "companion_glidebeam_change": {
     "pull_request": "https://github.com/dixtdf/GlideBeam/pull/1",
     "source_commit": "6a6210ee180ed4af692d657e5f157b44a7f6167d",
-    "existing_0_2_0_release_contains_change": false
+    "pull_request_state": "merged",
+    "release_version": "0.2.1",
+    "release_source_commit": "f6a00935e0f67f07ea0f3287d03f2c0a66f09642",
+    "main_four_architecture_ci_pass": true,
+    "ci_url": "https://github.com/dixtdf/GlideBeam/actions/runs/38119932560",
+    "release_published": true,
+    "release_url": "https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1",
+    "release_is_draft": false,
+    "release_is_prerelease": false,
+    "tag_workflow_url": "https://github.com/dixtdf/GlideBeam/actions/runs/38121558505",
+    "tag_workflow_attempt": 1,
+    "tag_workflow_success": true,
+    "four_zip_and_sha_asset_validation_pass": true,
+    "anonymous_asset_head_all_200": true,
+    "release_installed_over_current_mac_app": false,
+    "prior_formal_0_2_0_release_exists": false,
+    "deployed_0_2_0_local_build_contains_fallback": true
+  },
+  "current_operation": {
+    "recorded_date": "2026-10-11",
+    "requested_final_driver_package": "1.9.0",
+    "latest_validated_driver_package": "1.9.0",
+    "stage": "driver-only1.9 downgrade, warm validation, final complete checkpoint, cold-start and NVENC QUIC recovery verified; GlideBeam0.2.1 publicly released",
+    "preserve_current_guest_data": true,
+    "restore_old_vdisk_for_planned_downgrade": false,
+    "installer_source": "official 1.13.0 tar installer --payload",
+    "payload_source": "complete unmodified official 1.9.0 pkgroot",
+    "target_payload_manifest_entries": 53,
+    "target_library_payload_entries": 42,
+    "target_runtime_validation_complete": true,
+    "paths": [
+      "docs/11-driver-upgrade-1.13.0.md",
+      "docs/12-driver-upgrade-runbook.md",
+      "results/observed-2026-10-11-1.13.0.json",
+      "results/observed-2026-10-11-rollback-1.9.0.json"
+    ],
+    "post_checkpoint_cold_start_complete": true,
+    "after_checkpoint_sha256_files_verified": 8,
+    "after_checkpoint_qcow2_pass": true,
+    "after_checkpoint_verified_at_utc": "2026-10-11T07:36:46Z",
+    "after_checkpoint_approx_du_gib": 51,
+    "post_cold_start_encoder_mode": "hardware",
+    "post_cold_start_quic_video_records_received": 27,
+    "post_cold_start_tcc_checks_pass": true,
+    "previous_checkpoints_retained": true
   }
 }

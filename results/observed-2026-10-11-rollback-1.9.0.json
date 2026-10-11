@@ -1,0 +1,434 @@
+{
+  "recorded_date": "2026-10-11",
+  "record_type": "sanitized driver-only rollback acceptance after testing 1.13.0",
+  "environment_reference": "results/observed-2026-10-09.json",
+  "environment": {
+    "macos": "15.8.1",
+    "macos_build": "24H32",
+    "opencore": "1.0.5 RELEASE (unchanged)",
+    "gpu": "RTX 3060 12GB",
+    "physicalcpu": 10,
+    "logicalcpu": 20,
+    "memory_bytes": 17179869184,
+    "bar1_bytes": 8589934592,
+    "display_width": 1920,
+    "display_height": 1080,
+    "refresh_hz": 60,
+    "driver_package": "1.9.0"
+  },
+  "package": {
+    "url": "https://github.com/nullmoth/nvidia-macos-driver/releases/download/v1.9.0/nullmoth-nvidia-1.9.0.tar.gz",
+    "bytes": 269295455,
+    "sha256": "573546d77d6999ef4f5a808b036da39fa99b4856909f02c7b95adef017a240f2",
+    "official_digest_verified": true,
+    "manifest_entries_verified": 53,
+    "installed_payload_manifest_entries_verified": 42
+  },
+  "native_acceptance": {
+    "driver_version": "1.9.0",
+    "captured_at_utc": "2026-10-11T07:24:16.853727+00:00",
+    "components": {
+      "pass": true,
+      "payload_manifest_total_entries": 53,
+      "payload_manifest_library_entries": 42,
+      "installed_payload_manifest_entries_verified": 42,
+      "apple_smc_services": 1,
+      "virtual_smc_services": 0,
+      "driver_version_marker": "1.9.0",
+      "driver_version_marker_matches_verified_payload": true,
+      "physicalcpu": 10,
+      "logicalcpu": 20,
+      "memory_bytes": 17179869184
+    },
+    "metal": {
+      "pass": true,
+      "device": "NVIDIA GeForce RTX 3060 (NVMTL over NVIDIA GeForce RTX 3060 (NVK GA106-A))",
+      "copy": {
+        "pass": 1,
+        "bytes": 4096,
+        "incorrect_words": 0
+      },
+      "compute": {
+        "pass": 1,
+        "elements": 256,
+        "incorrect_elements": 0
+      },
+      "render": {
+        "pass": 1,
+        "width": 64,
+        "height": 64,
+        "incorrect_pixels": 0
+      },
+      "scope": "Small buffer copy, runtime-compiled compute, and 64x64 shader rendering only; no large-allocation, application, display or stability qualification"
+    },
+    "opencl": {
+      "schema": "nullmoth.opencl.acceptance.v1",
+      "pass": false,
+      "platforms": 1,
+      "gpu_devices": 1,
+      "nvidia_gpu_devices": 1,
+      "device": {
+        "name": "NVIDIA GeForce RTX 3060 (NVMTL over NVIDIA GeForce RTX 3060 (NVK GA106-A))",
+        "vendor": "NVIDIA",
+        "vendor_id": 16940800,
+        "version": "OpenCL 1.2 ",
+        "opencl_c_version": "OpenCL C 1.2 "
+      },
+      "array_transform": {
+        "ran": false,
+        "pass": false,
+        "elements": 1009,
+        "mismatches": 0
+      },
+      "local_memory_barrier_reduction": {
+        "ran": false,
+        "pass": false,
+        "work_group_size": 64,
+        "groups": 17,
+        "elements": 1088,
+        "mismatches": 0
+      },
+      "stage": "array_transform",
+      "opencl_error": -49,
+      "message": "clSetKernelArg(vector_kernel, 0, sizeof(a_mem), &a_mem)",
+      "build_log": ""
+    },
+    "video": {
+      "width": 1280,
+      "height": 720,
+      "submitted_frames": 30,
+      "encoders": [
+        {
+          "codec": "H264",
+          "encoder_id": "com.apple.videotoolbox.videoencoder.h264",
+          "hardware": null,
+          "name": "Apple H.264 (SW)"
+        },
+        {
+          "codec": "HEVC",
+          "encoder_id": "com.apple.videotoolbox.videoencoder.hevc.vcp",
+          "hardware": null,
+          "name": "Apple HEVC (SW)"
+        }
+      ],
+      "codecs": {
+        "H264": {
+          "hardware_decode_supported": true,
+          "hardware_encode": {
+            "create_status": 0,
+            "using_hardware": true,
+            "encoder_id": "com.nvmtl.videoencoder.avc.nvenc",
+            "prepare_status": 0,
+            "encode_status": 0,
+            "complete_status": 0,
+            "encoded_frames": 30,
+            "callback_errors": 0,
+            "encode_api_pass": true,
+            "pass": 1,
+            "hardware_decode": {
+              "create_status": 0,
+              "using_hardware": true,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 1.0855,
+              "mean_absolute_chroma_error": 1.8422546296296296
+            },
+            "software_decode": {
+              "create_status": 0,
+              "using_hardware": null,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 8.15263888888889,
+              "mean_absolute_chroma_error": 5.031986111111111
+            }
+          },
+          "software_encode": {
+            "create_status": 0,
+            "using_hardware": null,
+            "encoder_id": "com.apple.videotoolbox.videoencoder.h264",
+            "prepare_status": 0,
+            "encode_status": 0,
+            "complete_status": 0,
+            "encoded_frames": 30,
+            "callback_errors": 0,
+            "encode_api_pass": true,
+            "pass": 1,
+            "hardware_decode": {
+              "create_status": 0,
+              "using_hardware": true,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 11.377268518518518,
+              "mean_absolute_chroma_error": 5.450666666666667
+            },
+            "software_decode": {
+              "create_status": 0,
+              "using_hardware": null,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 0.07530555555555556,
+              "mean_absolute_chroma_error": 0.035875
+            }
+          }
+        },
+        "HEVC": {
+          "hardware_decode_supported": true,
+          "hardware_encode": {
+            "create_status": 0,
+            "using_hardware": true,
+            "encoder_id": "com.nvmtl.videoencoder.hevc.nvenc",
+            "prepare_status": 0,
+            "encode_status": 0,
+            "complete_status": 0,
+            "encoded_frames": 30,
+            "callback_errors": 0,
+            "encode_api_pass": true,
+            "pass": 0,
+            "hardware_decode": {
+              "create_status": 0,
+              "using_hardware": true,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 0,
+              "pass": 0,
+              "mean_absolute_luma_error": 125.51481481481481,
+              "mean_absolute_chroma_error": 127.70777777777778
+            },
+            "software_decode": {
+              "create_status": 0,
+              "using_hardware": null,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 0,
+              "pass": 0,
+              "mean_absolute_luma_error": 119.97992592592593,
+              "mean_absolute_chroma_error": 122.169375
+            }
+          },
+          "software_encode": {
+            "create_status": 0,
+            "using_hardware": null,
+            "encoder_id": "com.apple.videotoolbox.videoencoder.hevc.vcp",
+            "prepare_status": 0,
+            "encode_status": 0,
+            "complete_status": 0,
+            "encoded_frames": 30,
+            "callback_errors": 0,
+            "encode_api_pass": true,
+            "pass": 1,
+            "hardware_decode": {
+              "create_status": 0,
+              "using_hardware": true,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 0.14425925925925925,
+              "mean_absolute_chroma_error": 0.08218055555555556
+            },
+            "software_decode": {
+              "create_status": 0,
+              "using_hardware": null,
+              "decoded_frames": 30,
+              "callback_errors": 0,
+              "content_pass": 1,
+              "pass": 1,
+              "mean_absolute_luma_error": 0.14425925925925925,
+              "mean_absolute_chroma_error": 0.08218055555555556
+            }
+          }
+        }
+      }
+    }
+  },
+  "glidebeam": {
+    "build_source": {
+      "installed_host_source_commit": "6a6210ee180ed4af692d657e5f157b44a7f6167d",
+      "installed_host_binary_version": "0.2.0 validation build",
+      "merged_pull_request": "https://github.com/dixtdf/GlideBeam/pull/1",
+      "release_source_commit": "f6a00935e0f67f07ea0f3287d03f2c0a66f09642",
+      "release_version": "0.2.1",
+      "release_url": "https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1",
+      "note": "Runtime checks use the unchanged development-signed host. The release preparation changes version metadata and documentation, with the same streaming implementation.",
+      "release_published": true,
+      "release_actions_run": "https://github.com/dixtdf/GlideBeam/actions/runs/38121558505"
+    },
+    "codec_self_test": {
+      "pass": true,
+      "frames": 30,
+      "errors": 0,
+      "codec": "h264",
+      "encoder_mode": "hardware",
+      "encoder_id": "com.nvmtl.videoencoder.avc.nvenc",
+      "hardware_used": true,
+      "hardware_query_status": 0,
+      "width": 1920,
+      "height": 1080,
+      "coded_height": 1088,
+      "fps": 60,
+      "nvenc_layout_workaround": true,
+      "software_single_inflight_pass": null,
+      "encoder_flight_ownership_pass": true,
+      "forced_idr_verified": true,
+      "decoded_content": {
+        "dense_chroma_max_error": 1,
+        "dense_chroma_samples": 377880,
+        "dense_chroma_bad_coordinates": [],
+        "hardware_used": false,
+        "wait_status": 0,
+        "moving_marker_failures": 0,
+        "finish_status": 0,
+        "decoder": "Apple software H264",
+        "dense_chroma_mean_error": 4.234148406901662e-05,
+        "chroma_mean_error": 0.010666666666666666,
+        "pass": true,
+        "create_status": 0,
+        "frames": 30,
+        "hardware_query_status": -12900,
+        "luma_mean_error": 0,
+        "bad_samples": 0,
+        "dense_chroma_bad": 0,
+        "errors": 0
+      },
+      "scope": "30-frame production encoder selection/configuration, forced IDR, software-decoded NV12 color/position test; sustained streaming and latency require separate verification"
+    },
+    "live_animated_video": {
+      "passed": true,
+      "requested_seconds": 30,
+      "hardware_decode": true,
+      "actual_presented_frames": 1374,
+      "first_hardware_frame_ms": 204.0,
+      "video_width": 1920,
+      "video_height": 1080,
+      "fps": 56.514,
+      "bitrate_mbps": 2.052,
+      "network_rtt_ms": 1.628,
+      "decode_present_ms": 0.528,
+      "decode_present_measurement": "CPU wall-clock time across decode, GPU conversion submission and DXGI Present; includes any presentation wait, not a GPU duration"
+    },
+    "actual_host_status": {
+      "connected": true,
+      "video_records_received": 1,
+      "injected_input": false,
+      "last_report": {
+        "encoder_mode": "hardware",
+        "encoder_id": "com.nvmtl.videoencoder.avc.nvenc",
+        "fps": 60,
+        "width": 1920,
+        "height": 1080,
+        "coded_height": 1088,
+        "nvenc_layout_workaround": true,
+        "encode_failures": 0,
+        "accessibility": true,
+        "screen_recording": true,
+        "capture_state": "running"
+      }
+    }
+  },
+  "preserved_configuration": {
+    "captured_at": "2026-10-11T07:24:15.254903+00:00",
+    "domain_definition_byte_identical": true,
+    "efi_disk_byte_identical": true,
+    "host_hook_and_go_byte_identical": true,
+    "mac_host_binary_unchanged": true,
+    "boot_args_unchanged": true,
+    "bar1_8g_observed": true,
+    "vfio_observed": true,
+    "native_vnc_listener_reachable": true,
+    "native_vnc_desktop_content_verified": false,
+    "identity_regenerated": false,
+    "unchanged_mac_app_signature_valid": true
+  },
+  "power": {
+    "normal_guest_reboot_ssh_and_login_host_recovered": true,
+    "normal_guest_shutdown_qemu_shuts_off": true,
+    "post_checkpoint_cold_start_ssh_and_login_host_recovered": true
+  },
+  "limits": {
+    "full_opencl_benchmark_run": false,
+    "large_gpu_workloads_qualified": false,
+    "long_running_stability_qualified": false,
+    "other_gpu_models_qualified": false,
+    "general_application_input_qualified": false,
+    "native_vnc_desktop_content_verified": false,
+    "new_live_text_browser_features_application_tested": false,
+    "frame_rate_is_sampled_not_end_to_end_latency": true
+  },
+  "known_limitations": {
+    "opencl": "clSetKernelArg(vector_kernel, arg0) returns -49; array transform and local-memory/barrier reduction did not run",
+    "hevc_hardware_encoding": "Session creation and 30-frame API completion succeed, but decoded pixels fail severely; unusable in this acceptance",
+    "native_h264_decode": "The native probe uses a loose mean-error threshold below 12; software H264 to NV hardware decode barely passes with luma MAE 11.37726852 and chroma MAE 5.45066667. Do not treat this as broad pixel correctness.",
+    "production_h264": "GlideBeam uses the separately verified NVENC layout workaround with visible height 1080 and coded height 1088; its 30-frame Apple-software-decoded pixel and moving-marker check passes."
+  },
+  "installation": {
+    "driver_only": true,
+    "installer_release": "1.13.0",
+    "payload_release": "1.9.0",
+    "official_payload_modified": false,
+    "check_preflight_pass": true,
+    "installer_completed": true,
+    "driver_version_marker": "1.9.0",
+    "old_vdisk_restored": false,
+    "current_user_data_and_remote_app_preserved": true,
+    "classic_decoder_from_1_13_left_over": false
+  },
+  "backups": {
+    "before_downgrade": {
+      "complete": true,
+      "sha256_verified_files": 8,
+      "source_bytes_match": true,
+      "source_and_backup_qcow2_check_pass": true,
+      "verified_at_utc": "2026-10-11T07:19:58Z",
+      "private_path_in_handoff": true
+    },
+    "after_downgrade": {
+      "complete": true,
+      "sha256_verified_files": 8,
+      "source_bytes_match": true,
+      "source_and_backup_qcow2_check_pass": true,
+      "verified_at_utc": "2026-10-11T07:36:46Z",
+      "private_path_in_handoff": true
+    },
+    "older_checkpoints_retained": true
+  },
+  "cold_start_host_status": {
+    "connected": true,
+    "video_records_received": 27,
+    "injected_input": false,
+    "last_report": {
+      "encoder_mode": "hardware",
+      "encoder_id": "com.nvmtl.videoencoder.avc.nvenc",
+      "fps": 60,
+      "width": 1920,
+      "height": 1080,
+      "coded_height": 1088,
+      "nvenc_layout_workaround": true,
+      "encode_failures": 0,
+      "accessibility": true,
+      "screen_recording": true,
+      "capture_state": "running"
+    }
+  },
+  "cold_start_preserved_configuration": {
+    "captured_at": "2026-10-11T07:38:55.241966+00:00",
+    "domain_definition_byte_identical": true,
+    "efi_disk_byte_identical": true,
+    "host_hook_and_go_byte_identical": true,
+    "mac_host_binary_unchanged": true,
+    "boot_args_unchanged": true,
+    "bar1_8g_observed": true,
+    "vfio_observed": true,
+    "native_vnc_listener_reachable": true,
+    "native_vnc_desktop_content_verified": false,
+    "identity_regenerated": false,
+    "unchanged_mac_app_signature_valid": true
+  }
+}

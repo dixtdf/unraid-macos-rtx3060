@@ -59,21 +59,35 @@ install -m 755 /boot/config/macos-rtx/qemu-bar-hook.sh /etc/libvirt/hooks/qemu.d
 
 ## 安装固定驱动包
 
-当前实测包为 [NullMoth v1.10.0 的预编译 tar.gz](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.10.0)。RTX 3060 硬编码不可用，先按[升级章节](10-driver-upgrade-1.10.0.md)确认远控软件回退和完整冷备份。资产为 269301698 字节，SHA256 `47f9cd65201409d48952eb84d122c32e8a1867045d8d8f61e890ad559324ccb5`，先验证整包，再核对包内 54 项 manifest：
+本仓库此次选择 **NullMoth 1.9.0 的 H.264 硬编路径**；1.13.0 已完成独立验收，但仍不为 RTX 3060 注册硬编。本轮仅回退驱动、GlideBeam NVENC 生产自测、Windows 实际传输、完整冷备与冷启动均完成；OpenCL 参数设置失败、HEVC 硬编像素失败、部分 Mac H.264 硬解输入有明显误差，见[本轮记录](11-driver-upgrade-1.13.0.md)。下一次更新先读[通用流程](12-driver-upgrade-runbook.md)，不根据版本号自动更换功能。
+
+已有驱动的机器使用本轮审查过的官方 **1.13.0 安装器 `--payload` + 完整原始 1.9.0 payload**，保留新版 `ditto` 备份及正确的 VERSION marker。它只安装指定驱动，不恢复旧 VDisk，也不改 EFI、SIP、boot-args、身份或用户数据；需要预先建立完整冷备。
+
+| 固定官方资产 | 大小 | SHA256 | 本轮包内 manifest |
+| --- | --- | --- | --- |
+| [1.9.0 payload](https://github.com/nullmoth/nvidia-macos-driver/releases/download/v1.9.0/nullmoth-nvidia-1.9.0.tar.gz) | 269295455 字节 | `573546d77d6999ef4f5a808b036da39fa99b4856909f02c7b95adef017a240f2` | 53 项，Library 42 项 |
+| [1.13.0 安装器来源](https://github.com/nullmoth/nvidia-macos-driver/releases/download/v1.13.0/nullmoth-nvidia-1.13.0.tar.gz) | 269301262 字节 | `994970b1bba53e3ae8d7f500ef27b25cae8bc6818abc112d35230a58e6882fdf` | 54 项，Library 43 项 |
+
+在 macOS 私有工作目录准备两包，与上表完整摘要和官方 digest 比较。先审查归档路径，再分别解压到两个新目录，保持原始 payload 和 manifest 未改；核对两包的全清单。下面示例假定已审查并准备好对应目录：
 
 ```bash
-shasum -a 256 nullmoth-nvidia-1.10.0.tar.gz
-tar -xzf nullmoth-nvidia-1.10.0.tar.gz
-cd pkgroot
-shasum -a 256 -c SHA256SUMS
-sudo ./install.sh
+set -euo pipefail
+installer_root=/path/to/installer-1.13.0/pkgroot
+payload_root=/path/to/payload-1.9.0/pkgroot
+(cd "$installer_root" && shasum -a 256 -c SHA256SUMS)
+(cd "$payload_root" && shasum -a 256 -c SHA256SUMS)
+sudo env CHECK=1 /bin/bash "$installer_root/install.sh" --payload "$payload_root"
+# 预检失败时先处理；安装后确认退出码、旧组件备份与 KC 发布成功。
+sudo /bin/bash "$installer_root/install.sh" --payload "$payload_root"
 sudo shutdown -r now
 ```
 
-此处使用预编译包手动安装；包内 1.10.0 组件本身不为 Ampere 注册硬编码器，手动安装不会恢复 RTX 3060 的 NVENC。系统若要求允许内核扩展，在“隐私与安全性”允许并再重启。安装失败时保存 log 与安装器给出的备份目录，先解决失败，不要继续切到纯直通画面。
+新版安装器从指定 payload 的 `VERSION` 写入 `/Library/NullMoth/driver-version`；重启后仍需核对原始 1.9.0 的 42 项 Library payload 与运行中的组件，不能只看 marker。1.10.0～1.13.0 直接安装其各自 payload 时，RTX 3060 的 NVENC 仍不可用，手动 tar 安装不会绕过源码门控。
 
-四个 kext 安装到 `/Library/Extensions`，从辅助内核集合加载；**不要再注入到 EFI/OC/Kexts**。Metal 插件在 `/Library/GPUBundles/NVMTLDriver.bundle`。主 kext 的 CFBundleVersion 显示 `0.1` 不等于装错包，包版本应以下载资产、摘要和组件清单判定。
+系统若要求允许内核扩展，在“隐私与安全性”允许并再重启。安装失败时保存私有日志与安装器给出的备份目录，先解决失败，不要继续切到纯直通画面。旧 1.9.0 安装器的 `cp -Rp` 在已有 Vulkan 符号链接时可能失败；不能删除当前用户数据或改写原始 payload 来掩盖备份问题。
+
+四个 kext 安装到 `/Library/Extensions`，从辅助内核集合加载；**不要再注入到 EFI/OC/Kexts**。Metal 插件在 `/Library/GPUBundles/NVMTLDriver.bundle`。主 kext 的 CFBundleVersion 显示 `0.1` 不等于装错包，包版本应以下载资产、摘要、实际组件清单和准确 marker 一并判定。1.13.0 tar 没有包含源码中的 `NMHDA` / `NMIntelFB`，不能据新版号宣称 HDMI / DP 音频已修复。
 
 若 PCI / framebuffer 已识别，但原生 Metal 枚举仍没有 NVIDIA 设备，先检查驱动日志、加载情况、`WindowServerMetalPluginName` 等注册属性；这次排查中使用过 `sudo sysctl -w debug.nvaccelfb=1` 触发注册。该 sysctl 是驱动内部接口，不是所有版本通用的安装步骤。先验证一次是否解决，再检查重启后自动注册状态，不要未经验证永久循环写入或反复重启 WindowServer。
 
-驱动升级、macOS 升级、改变显示器或刷新率后，重新完成[验收](06-validation-and-troubleshooting.md)。1.1.0 → 1.9.0 的备份和验收见[升级章节](09-driver-upgrade-1.9.0.md)；1.10.0 在 RTX 3060 上停止注册硬编码器，先读[升级与软件回退说明](10-driver-upgrade-1.10.0.md)，不要套用 1.9.0 的硬编码结论。
+驱动升级 / 降级、macOS 更新、改变显示器或刷新率后，重新完成[验收](06-validation-and-troubleshooting.md)。历史过程见 [1.1.0 → 1.9.0](09-driver-upgrade-1.9.0.md)及 [1.9.0 → 1.10.0](10-driver-upgrade-1.10.0.md)，本轮见 [1.13.0 验证及只回退驱动](11-driver-upgrade-1.13.0.md)。每轮结果独立记录；下一版先阅读[升级流程](12-driver-upgrade-runbook.md)，不套用旧硬编码结论。

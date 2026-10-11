@@ -1,27 +1,32 @@
 # Unraid 上的 macOS 15.8.1 + RTX 3060 直通
 
-> **远程桌面推荐：[GlideBeam / 光梭](https://github.com/dixtdf/GlideBeam)** 是我们新开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。它支持 H.264、剪贴板共享和文件传输。RTX 3060 使用 NullMoth 1.10.0 时，需要[软件编码回退构建](https://github.com/dixtdf/GlideBeam/pull/1)；已发布的 GlideBeam 0.2.0 下载包尚未包含该修改。当前面向已登录的 Mac 桌面，建议保留 SSH / VNC 作为登录前操作和故障救援入口。
+> **远程桌面推荐：[GlideBeam / 光梭 v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)** 是我们新开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。它支持 H.264、剪贴板共享和文件传输，硬编优先、Apple 软件 H.264 回退，以及分别显示 Mac 编码 / Windows 解码模式。正式版提供 Windows x64 / ARM64、Mac Intel / Apple Silicon 四个包和 SHA256 清单，已校验下载、ZIP 与架构。本机仍保留同功能 `6a6210e` Mac 开发签名构建（显示 0.2.0），没有替换签名或重置授权。当前面向已登录的 Mac 桌面，保留 SSH / VNC 作为登录前操作和故障救援入口。
 
-一份基于实际安装过程整理的中文教程：在 Unraid / QEMU 中安装 macOS Sequoia 15.8.1，再使用 [NullMoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver/releases/tag/v1.10.0) 驱动 RTX 3060 12GB，保留远程访问，并修复关机后 QEMU 不退出的问题。
+一份基于实际安装过程整理的中文教程：在 Unraid / QEMU 中安装 macOS Sequoia 15.8.1，再使用 [NullMoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver)驱动 RTX 3060 12GB，保留远程访问，并修复关机后 QEMU 不退出的问题。
 
-2026-10-11 已升级到 **NullMoth 1.10.0、OpenCore 1.0.5、macOS 15.8.1（24H32）**，并为 GlideBeam 加入软件 H.264 回退，见[升级过程](docs/10-driver-upgrade-1.10.0.md)与[新实测摘要](results/observed-2026-10-11-1.10.0.json)。[1.9.0 升级记录](docs/09-driver-upgrade-1.9.0.md)和对应结果保留为历史证据。[原始 1.1.0 实测](results/observed-2026-10-09.json)保留为历史基线。本仓库是安装记录和配置工具，不是 NVIDIA 驱动项目。
+2026-10-11 完成 **NullMoth 1.13.0** 独立验收后，按用户选择仅替换驱动回到 **1.9.0**，保留当前用户数据、EFI、身份和 GlideBeam。最终使用 **NVENC H.264 → Windows GPU 解码**；环境仍为 OpenCore 1.0.5、macOS 15.8.1（24H32）。升级前、1.13.0 后、最终 1.9.0 的三个完整冷备均通过 8 项 SHA256 复核，最终冷启动和远控恢复通过。过程见[1.13.0 验证及回退 1.9.0](docs/11-driver-upgrade-1.13.0.md)，后续按[通用升级流程](docs/12-driver-upgrade-runbook.md)执行。
 
-**v1.10.0 功能取舍：**RTX 3060 的 H.264 / HEVC 硬编码不可用；硬件解码通过。配套 GlideBeam 修改使用 Apple 软件 H.264 编码、Windows GPU 解码，增加 CPU 负载。升级前先确认远控软件有可用回退，保留 SSH / VNC 与完整恢复点。
+[1.1.0 基线](results/observed-2026-10-09.json)、[1.9.0 历史升级](docs/09-driver-upgrade-1.9.0.md)和 [1.10.0 软件回退记录](docs/10-driver-upgrade-1.10.0.md)保留原有版本与范围。本仓库是安装记录和配置工具，不是 NVIDIA 驱动项目。
+
+本轮脱敏结果：[1.13.0](results/observed-2026-10-11-1.13.0.json)、[最终 1.9.0 驱动回退](results/observed-2026-10-11-rollback-1.9.0.json)。
+
+**版本选择：**1.9.0 恢复 H.264 硬编，但本轮 OpenCL 探针失败、HEVC 硬编像素错误，Apple 软件 H.264 → Mac 硬解也有明显误差。1.13.0 的小规模 OpenCL / 软件编码→硬解通过，但 3060 没有硬编，GlideBeam 使用 Apple 软件 H.264。这次选择优先保留 H.264 远控路径，具体取舍与两轮证据都保留在第 11 章。
 
 **给 AI 使用：**先读根目录 [AGENTS.md](AGENTS.md)，再读 [AI 教材](docs/AI-GUIDE.md)和[机器索引](ai/knowledge.json)。教材末尾提供本地 / GitHub 阅读提示，可直接复制给接手的 AI。
 
-## 1.10.0 实测结果
+## 当前 1.9.0 回退后的实测结果
 
 | 项目 | 结果 | 范围 |
 | --- | --- | --- |
 | PCI 直通 | 通过 | RTX 3060 显卡和 HDMI 音频功能同时直通 |
 | 显卡识别 | 12GB、Metal 3 | 系统报告和原生 Metal 设备枚举 |
 | Metal | 通过 | 小缓冲区复制、运行时编译计算、64×64 渲染 |
-| OpenCL | 两项小规模探针通过 | 非均匀向量输入、局部内存 / barrier 归约；未跑完整基准 |
-| H.264 硬件解码 | 通过 | Apple 软件编码 → NVIDIA 硬解，1280×720、30 帧像素验收 |
-| HEVC / H.265 硬件解码 | 通过 | 解码 Apple 软件编码产生的短片段 |
-| H.264 / HEVC 硬件编码 | **不可用** | 强制硬编创建返回 `-12908`；1.9.0 的 HEVC 像素失败属于旧版本结论 |
-| 远程桌面 | GlideBeam 软件 H.264 → Windows GPU 解码通过 | 修改构建的实际视频链路；30fps 是配置目标，保留 VNC 救援 |
+| OpenCL | **探针失败，任务未运行** | `clSetKernelArg` 返回 `-49`；设备可枚举不代表正确性通过 |
+| Mac H.264 硬件解码 | 输入兼容性有差异 | NVENC 输入的小样本通过；Apple 软件输入 Y MAE 11.377，不能宣称普遍正确 |
+| HEVC / H.265 硬件解码 | 指定样本通过 | Apple 软件编码输入、1280×720、30 帧像素验收 |
+| H.264 硬件编码 | NVENC 生产路径通过 | GlideBeam 30 帧颜色 / 移动标记测试，可见 1080 / 编码 1088 高度 |
+| HEVC 硬件编码 | **像素失败** | API 成功但画面错误；不作为可用功能推荐 |
+| 远程桌面 | GlideBeam NVENC H.264 → Windows GPU 解码通过 | 1920×1080、30 秒实际显示 1374 帧、后段采样约 56.5fps；本轮未注入输入 |
 | 关机 / 重启 | 通过 | `-vsmccomp` 消除双 AppleSMC；关机使 QEMU 正常退出 |
 | CPU | 10 核 20 线程可用 | ES 处理器的显示名称仍为 Unknown；部分 CPUID 信息显示 16/32 |
 
@@ -51,7 +56,7 @@
 6. [运行 Metal 和视频验收，排查常见问题](docs/06-validation-and-troubleshooting.md)。
 7. [建立恢复点、回滚和发布 GitHub 仓库](docs/07-backup-and-publishing.md)。
 
-已有 VM 升级时按 [1.9.0 → 1.10.0](docs/10-driver-upgrade-1.10.0.md)核对硬编码变化、软件回退和冷备份；更早过程见 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)。
+已有 VM 更新先读[通用升级流程](docs/12-driver-upgrade-runbook.md)，本次 [1.10.0 → 1.13.0 验证及只回退驱动到 1.9.0](docs/11-driver-upgrade-1.13.0.md)记录固定资产、脚本审查、完整冷备与逐项验收。历史过程见 [1.9.0 → 1.10.0](docs/10-driver-upgrade-1.10.0.md)和 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)。
 
 总体流程：
 
