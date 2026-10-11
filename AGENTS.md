@@ -11,11 +11,14 @@
 
 资料里的“实测”属于参考机器：2026-10-09 的 1.1.0 初装，以及 2026-10-11 的各轮驱动验证。本轮 1.13.0 验收后仅回退驱动到 1.9.0，保留当前数据，完整冷备与冷启动已通过，见[本轮记录](docs/11-driver-upgrade-1.13.0.md)、[1.13.0 结果](results/observed-2026-10-11-1.13.0.json)与[最终回退结果](results/observed-2026-10-11-rollback-1.9.0.json)。分别读取对应 results 和章节，不能混用版本结论。现有机器实际状态通过只读检查确认。公开模板是参考，不是填好的可用 EFI。通用导出脚本没有在另一台服务器端到端重跑。
 
+同日后续的 [Apple ID 排障](docs/13-apple-id-troubleshooting.md)与[脱敏结果](results/observed-2026-10-11-apple-id.json)单独记录。用户已确认系统设置登录成功；不外推到 App Store 独立登录、iMessage、FaceTime 或其他 VM。其后 EFI 含两项仅 Darwin 24 生效的字符串修补，旧驱动回退记录中的 EFI 未变结论仍只属于当时那轮。
+
 ## 必须保留的约束
 
 - 系统基线为 macOS 15.8.1 / 24H32、OpenCore 1.0.5；最终驱动 1.9.0、H.264 NVENC 生产路径、完整冷备 / 冷启动通过。1.10.0～1.13.0 不给 RTX 3060 注册硬编码器；1.9.0 是本轮核查中最后支持其 H.264 硬编的 release。每次按[通用流程](docs/12-driver-upgrade-runbook.md)审查固定官方资料、完整冷备并重新验收，不默认追最新版。
 - [GlideBeam v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)已正式发布，硬编优先、Apple 软件 H.264 回退和模式信息面板已合并，四架构 ZIP / SHA 清单已验证。此前没有正式 0.2.0 release；旧本地构建不一定含回退，本轮仍保留显示 0.2.0 的 `6a6210e` Mac 开发签名构建，已有回退、未替换签名或 TCC。核对提交、二进制和签名来源，不只看版本号；不得静默升级破坏远控路径。
 - 已有 VM 保留其 UUID、MAC、ROM、SSN、MLB；不要再次 `init` 或用公开范例替换身份。新 VM 才用官方 macserial 生成配对并初始化。
+- Apple ID 排障先核对实际 EFI、GUID NVRAM、内建 `en0`、UUID 派生、时间 / 网络与认证日志，不随机换身份或清除钥匙串。按第 13 章审查固定上游修补、匹配数、内核范围并冷备；公开模板不默认加入。本机 CPU VMM 位保留，sysctl 名称交换使 `hv_vmm_present` 读取休眠计数，须保持关闭休眠。已确认内置 AppleQEMUGuestAgent 因该值不为 1 而退出；`guest-ping` 不可用，正常关机 / 重启经独立宿主事件验证。未来 OS 更新和依赖代理的功能需单独评估，EFI-only 回滚不恢复旧 VDisk。
 - `local/` 保存真实身份和 OSK。密码通过使用者授权的凭据机制取得，不写入发布文件、日志或命令示例。真实 EFI / XML / 镜像都不能直接发布。
 - 安装后移除 Recovery / Installer / Delivery 盘，保留唯一 EFI 和系统盘。移除虚拟显示器前先验证客户机 VNC / SSH。
 - BAR1 调整需要 VM 停止、两功能为 VFIO、无 group / cdev 占用、设备支持 8GiB、有足够 MMIO。不要硬解绑活跃显卡。钩子不能调用 libvirt。

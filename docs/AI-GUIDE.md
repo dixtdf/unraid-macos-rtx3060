@@ -8,6 +8,8 @@
 
 本轮资料见 [1.13.0 验证及只回退驱动到 1.9.0](11-driver-upgrade-1.13.0.md)、[1.13.0 实测](../results/observed-2026-10-11-1.13.0.json)和[最终 1.9.0 回退实测](../results/observed-2026-10-11-rollback-1.9.0.json)，后续更新阅读全文[通用升级流程](12-driver-upgrade-runbook.md)。1.13.0 的安装、43 项 payload、Metal / OpenCL、软件编解码像素与 GlideBeam 实际软件传输已验证；随后仅替换驱动回到 1.9.0，42 项 payload、Metal、GlideBeam NVENC 生产路径与实际 Windows 解码通过。最终 1.9.0 完整冷备 / 冷启动及远控恢复通过；接手时仍需只读确认当前现场状态。
 
+后续 [Apple ID 排障](13-apple-id-troubleshooting.md)与[脱敏结果](../results/observed-2026-10-11-apple-id.json)记录了新的 EFI 修改：保留身份与 CPU VMM 位，仅增加两项 Darwin 24 字符串修补。用户确认系统设置登录成功；内置 QEMU 客户机代理因检测值变化而退出，正常关机 / 重启与 NVENC 传流另经复测。初装及驱动回退时的 Apple ID 未测和 EFI 未变结论属于各自历史阶段，不能拿它们覆盖本次后续事实。
+
 [1.9.0 历史实测](../results/observed-2026-10-11-1.9.0.json)与 [1.10.0 实测](../results/observed-2026-10-11-1.10.0.json)保持原有范围。1.10.0～1.13.0 的源码不为 RTX 3060 注册硬编，生产远控需要 Apple 软件 H.264 回退；[GlideBeam v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)已正式发布，四 ZIP 和 SHA 清单、架构、公开内容都已验证。GitHub 记录核对发现此前没有正式 0.2.0 release，历史章节中的“0.2.0 下载包”描述不作为当前发布证据；旧本地构建是否包含回退要看提交。本机仍保留 `6a6210e` 开发签名构建，虽显示 0.2.0 但已有回退，没有换装正式包或重置授权。必须记录实际构建和签名来源，不能只看应用版本号。
 
 不要只搜索某个 boot-arg 后立即修改配置。先读对应完整章节，了解该参数的前置条件和与其他层次的关系：
@@ -21,6 +23,7 @@
 | RustDesk 无 H.264 / HEVC | 05 远程、06 编解码 | 原生 VideoToolbox 测试与第三方程序实现 |
 | 已有驱动升级或仅回退驱动 | 12 通用流程、11 本轮记录、04 固定包 | 固定资产 / manifest、完整冷备、payload 接口、逐项原生与实际远控验收 |
 | CPU 身份或序列号维护 | 03 身份、01 CPU | 本地 settings / 现有 EFI，不重新生成身份 |
+| Apple ID 验证失败 | 13 登录排障、03 身份 | 实际 EFI / en0 / GUID NVRAM、认证错误与 VMM sysctl，先核对再选择可回滚修补 |
 | 公开 GitHub | 07 发布、本文件 | check_publication.py，人工检查历史 / 截图 |
 
 脚本路径与章节链接见索引。读完脚本再执行；不要把 script 中的模板路径当作当前机器已经存在的文件。
@@ -30,7 +33,7 @@
 1. **参考实机结果**：本仓库各日期 / 版本的历史记录，版本和硬件固定。可以据此选择排查方向，不能写成本次现场已验证。
 2. **当前机器结果**：本次连接后实际得到的版本、状态、日志、像素测试、重启 / 关机结果。记录命令、时间和范围；敏感原始文件保留在私有位置。
 3. **配置或源码推断**：例如某个 boot-arg 的设计作用、驱动设备表中的型号、QEMU 的 CPUID 计算。标为推断，继续用实际结果确认。
-4. **未知 / 未通过**：没有测试的版本、HEVC 硬编码错误、长时间稳定性、其他 GPU、Apple ID 服务。保留这个标签，不因系统报告“支持”而改成通过。
+4. **未知 / 未通过**：没有测试的版本、HEVC 硬编码错误、长时间稳定性、其他 GPU、其他机器的 Apple ID，以及本机 App Store 独立登录 / iMessage / FaceTime。保留这个标签，不因系统报告“支持”而改成通过。本机系统设置 Apple ID 登录成功的证据来自用户实际重试确认。
 
 1.9.0 本轮回退后 **HEVC 硬编码 API 成功而像素严重错误**，OpenCL 设置参数为 -49、两个任务未执行，Apple 软件 H.264 → Mac 硬解有明显误差。GlideBeam 自己的 NVENC 1088 编码高度布局处理经 30 帧生产像素自测和真实 30 秒 / 1374 显示帧验证，属于独立路径，不能外推到通用解码或完整 OpenCL。1.10.0 / 本轮 1.13.0 的 H.264 / HEVC 硬编创建直接不可用，软件编码 → 硬解通过；这些状态不同，不能将不可用写成像素失败。每次复测记录新证据，不复制历史结果。
 
@@ -90,7 +93,7 @@
 
 运行原生视频测试，同时看 status、硬件标志、帧数和像素 MAE。不要只检查退出码或编码器名单。分别测试客户机主动关机与重启，检查 QEMU 退出 / SSH 恢复及 GPU 再次可用。
 
-SMC 预期一个 AppleSMC 服务，VirtualSMC IOService 为零；kext 仍加载不构成重复服务证据。CPU 按 hw.physicalcpu / logicalcpu 验证 10 / 20，不追求修饰 ES 名称。
+SMC 预期一个 AppleSMC 服务，VirtualSMC IOService 为零；kext 仍加载不构成重复服务证据。CPU 核对 libvirt 分配拓扑为 10 核 / 20 vCPU，再检查客户机 hw.physicalcpu / logicalcpu 与 CPUID；部分字段报告 16/32 不等于分配了更多算力，不追求修饰 ES 名称。
 
 退出条件：形成带范围的结果清单、已知失败项、最后完整冷备份。没有通过的功能照实保留。
 
@@ -99,6 +102,8 @@ SMC 预期一个 AppleSMC 服务，VirtualSMC IOService 为零；kext 仍加载�
 - 不用 `virsh destroy` 或自动断电假装修好了 macOS 关机。
 - 不把 `ports=15` 当成增加 USB 端口的正确方式；本例 XHCI `ports=4`。
 - 不因为 UUID 字符串不同就换身份；XNU 派生与字节序需要分别理解。
+- 不把 Anisette / DeviceCheck 错误码当作唯一根因，或把隐藏 VMM 当作所有 Apple ID 故障的必需步骤。本机的两项字符串修补有内核范围、休眠与客户机代理副作用；按第 13 章审查、冷备、匹配、回读，再验证正常电源及远控，并由用户自行输入 Apple 凭据重试。
+- 不为隐藏虚拟机而直接清掉 CPU hypervisor 位；它会改变 XNU 时钟和 OpenCore MSR 初始化路径，本轮没有验证这种替代方案。公开模板不默认包含 Apple ID 修补。
 - 不复制物理机的 iGPU / 音频 / 网卡 DeviceProperties 猜测路径。
 - 不为 ES CPU 名称加入已经失败的 RestrictEvents / ProcessorType 试验。
 - 不凭“Metal 3”宣布 HEVC 编码、DRM、所有应用或其他 RTX 型号成功。

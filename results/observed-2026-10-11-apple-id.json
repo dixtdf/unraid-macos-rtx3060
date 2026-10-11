@@ -1,0 +1,280 @@
+{
+  "recorded_date": "2026-10-11",
+  "record_type": "sanitized Apple Account login repair acceptance on an existing Unraid macOS VM",
+  "schema": "unraid-macos.appleid-public-acceptance.v1",
+  "environment_reference": "results/observed-2026-10-11-rollback-1.9.0.json",
+  "captured_at_utc": "2026-10-11T09:23:27.466761+00:00",
+  "environment": {
+    "macos": "15.8.1",
+    "macos_build": "24H32",
+    "darwin_major": 24,
+    "opencore": "1.0.5 RELEASE",
+    "system_product_name": "iMacPro1,1",
+    "gpu": "RTX 3060 12GB",
+    "driver_package": "1.9.0",
+    "assigned_vcpu_topology_cores": 10,
+    "assigned_vcpu_topology_threads": 2,
+    "assigned_vcpus": 20,
+    "vcpu_topology_scope": "libvirt-assigned topology; some guest CPUID/sysctl reports showed 16/32, which does not establish more assigned compute capacity",
+    "memory_bytes": 17179869184,
+    "bar1_bytes": 8589934592
+  },
+  "reported_problem": {
+    "surfaces": ["System Settings", "App Store"],
+    "message": "验证失败，发生未知错误",
+    "report_source": "User reply in this chat",
+    "agent_attempted_account_login": false,
+    "account_credentials_collected": false
+  },
+  "before_repair": {
+    "captured_at_utc": "2026-10-11T08:39:06.625095+00:00",
+    "identity_format_and_runtime_checks_passed": true,
+    "runtime_serial_matches_configuration": true,
+    "nvram_serial_matches_configuration": true,
+    "nvram_mlb_matches_configuration": true,
+    "nvram_rom_matches_configuration": true,
+    "rom_matches_actual_en0": true,
+    "en0_present": true,
+    "en0_builtin": true,
+    "en0_primary": true,
+    "kern_hv_vmm_present": 1,
+    "cpu_vmm_feature_present": true,
+    "basic_dns_and_tls_connectivity_checked": true,
+    "full_account_authentication_network_path_qualified": false,
+    "error_log_evidence": {
+      "scope": "Historical filtered login-related log window before the repair; domain/code counts are log occurrences, not independent login attempts",
+      "filtered_events": 623,
+      "selected_errors": [
+        {"domain": "AKAnisetteError", "code": -8001, "occurrences": 12},
+        {"domain": "AKAnisetteError", "code": -8008, "occurrences": 54},
+        {"domain": "AKAnisetteError", "code": -8025, "occurrences": 12},
+        {"domain": "AKUnderlyingADIErrors", "code": -45061, "occurrences": 12},
+        {"domain": "AKAuthenticationError", "code": -7010, "occurrences": 17},
+        {"domain": "AKAuthenticationError", "code": -7018, "occurrences": 4},
+        {"domain": "AKAuthenticationError", "code": -7066, "occurrences": 48},
+        {"domain": "AKAuthenticationServerError", "code": -22410, "occurrences": 17},
+        {"domain": "com.apple.devicecheck.error.baa", "code": -10000, "occurrences": 72}
+      ],
+      "observations": [
+        "ADIGetIDMSRouting failed with -45061",
+        "Anisette authentication parameter generation failed",
+        "Device attestation header generation failed"
+      ],
+      "raw_logs_published": false
+    },
+    "interpretation": "The existing SMBIOS and built-in en0 checks did not identify a missing field. The auth errors and VM detection state motivated reviewing an upstream VM sysctl workaround; these observations do not establish a unique cause of every Apple Account failure."
+  },
+  "repair": {
+    "applied": true,
+    "source_commit": "b282993a4a3bf6cb379cbcf406cc81c8d7582fe2",
+    "source_url": "https://github.com/sickcodes/Docker-OSX/blob/b282993a4a3bf6cb379cbcf406cc81c8d7582fe2/scripts/apply_appleid_kernelpatch.py",
+    "source_sha256": "a3e94694adee79673dfdf8c18b8fffa9b56d96664530998aeb812a0007f4b7a3",
+    "upstream_review": "https://github.com/kholia/OSX-KVM/pull/264",
+    "changes": "Exactly two equal-length kernel string patches appended to Kernel/Patch. All other parsed OpenCore configuration and the VM XML were retained.",
+    "mechanism": "Swap the sysctl names associated with the hibernation counter and VMM state. kern.hv_vmm_present reads the actual hibernation counter; this is not a permanently-zero function and does not remove the CPU VMM feature.",
+    "kernel_probe": {
+      "collection_bytes": 66125824,
+      "each_find_pattern_occurrences": [1, 1],
+      "scope": "Pattern counts in this macOS build's kernel collection, not qualification of other builds"
+    },
+    "patches": [
+      {
+        "part": 1,
+        "arch": "x86_64",
+        "identifier": "kernel",
+        "enabled": true,
+        "min_kernel": "24.0.0",
+        "max_kernel": "24.99.99",
+        "count": 1,
+        "skip": 0,
+        "limit": 0,
+        "base": "",
+        "mask_hex": "",
+        "replace_mask_hex": "",
+        "find_text": "hibernatehidready\u0000hibernatecount\u0000",
+        "replace_text": "hibernatehidready\u0000hv_vmm_present\u0000",
+        "find_hex": "68696265726e61746568696472656164790068696265726e617465636f756e7400",
+        "replace_hex": "68696265726e61746568696472656164790068765f766d6d5f70726573656e7400"
+      },
+      {
+        "part": 2,
+        "arch": "x86_64",
+        "identifier": "kernel",
+        "enabled": true,
+        "min_kernel": "24.0.0",
+        "max_kernel": "24.99.99",
+        "count": 1,
+        "skip": 0,
+        "limit": 0,
+        "base": "",
+        "mask_hex": "",
+        "replace_mask_hex": "",
+        "find_text": "boot session UUID\u0000hv_vmm_present\u0000",
+        "replace_text": "boot session UUID\u0000hibernatecount\u0000",
+        "find_hex": "626f6f742073657373696f6e20555549440068765f766d6d5f70726573656e7400",
+        "replace_hex": "626f6f742073657373696f6e20555549440068696265726e617465636f756e7400"
+      }
+    ],
+    "ocvalidate": {
+      "version": "1.0.5",
+      "exit_code": 0,
+      "official_archive_sha256": "2608743afe81001114a85b6fba6555edbc43813b82538e1f70220aeb0662d8be"
+    },
+    "identity_regenerated": false,
+    "cpu_vmm_feature_disabled": false,
+    "old_operating_system_disk_restored": false,
+    "original_and_candidate_filled_configs_published": false
+  },
+  "backup_and_rollback": {
+    "complete_cold_backup_before_repair": true,
+    "verified_at_utc": "2026-10-11T08:49:43Z",
+    "sha256_verified_files": 8,
+    "source_bytes_match_backup": true,
+    "source_and_backup_qcow2_checks_passed": true,
+    "private_checkpoint_path_retained_in_handoff": true,
+    "rollback_script_retained_privately": true,
+    "rollback_requires_vm_stopped": true,
+    "rollback_restores_only_original_efi_configuration": true,
+    "rollback_refuses_if_current_configuration_drifted": true,
+    "rollback_restores_old_operating_system_disk": false,
+    "rollback_executed_in_this_acceptance": false
+  },
+  "after_repair": {
+    "initial_validation_at_utc": "2026-10-11T08:52:23.792589+00:00",
+    "final_read_only_snapshot_at_utc": "2026-10-11T09:00:39.798596+00:00",
+    "only_two_scoped_efi_patches_changed": true,
+    "vm_xml_hook_and_go_unchanged": true,
+    "identity_configuration_and_six_runtime_nvram_values_preserved": true,
+    "runtime_platform_uuid_unchanged": true,
+    "runtime_platform_uuid_matches_expected_apple_sha1_derivation": true,
+    "rom_matches_actual_en0": true,
+    "kern_hv_vmm_present": 0,
+    "cpu_vmm_feature_present": true,
+    "kern_hibernatecount_after_name_swap": 1,
+    "hibernation_and_sleep_disabled": true,
+    "verified_hibernatemode": 0,
+    "verified_sleep": 0,
+    "rtx3060_present": true,
+    "bar1_8g_and_vfio_verified": true,
+    "mac_remote_host_binary_unchanged": true,
+    "mac_remote_host_signature_valid": true,
+    "vnc_rfb_listener_reachable": true,
+    "vnc_desktop_content_verified": false,
+    "cross_reboot_nvram_write_probe_performed": false,
+    "historical_auth_errors_absent_from_all_logs_verified": false
+  },
+  "glidebeam": {
+    "installed_host_source_commit": "6a6210ee180ed4af692d657e5f157b44a7f6167d",
+    "installed_host_binary_version": "0.2.0 validation build",
+    "host_replaced_during_repair": false,
+    "codec_self_test": {
+      "pass": true,
+      "frames": 30,
+      "errors": 0,
+      "codec": "h264",
+      "encoder_mode": "hardware",
+      "encoder_id": "com.nvmtl.videoencoder.avc.nvenc",
+      "hardware_used": true,
+      "width": 1920,
+      "height": 1080,
+      "coded_height": 1088,
+      "configured_fps": 60,
+      "nvenc_layout_workaround": true,
+      "forced_idr_verified": true,
+      "encoder_flight_ownership_pass": true,
+      "decoded_content": {
+        "pass": true,
+        "decoder": "Apple software H264",
+        "hardware_used": false,
+        "frames": 30,
+        "errors": 0,
+        "moving_marker_failures": 0,
+        "luma_mean_error": 0,
+        "chroma_mean_error": 0.010666666666666666,
+        "dense_chroma_samples": 377880,
+        "dense_chroma_bad": 0,
+        "dense_chroma_max_error": 1,
+        "dense_chroma_mean_error": 0.00004234148406901662
+      },
+      "scope": "30-frame production encoder selection, forced IDR, ownership and Apple-software-decoded NV12 color/position test. This does not qualify sustained streaming, latency, every codec or every application."
+    },
+    "after_hot_reboot_quic_probe": {
+      "seconds": 12,
+      "video_records_received": 299,
+      "hardware_encoder": "com.nvmtl.videoencoder.avc.nvenc",
+      "encode_failures": 0,
+      "input_events_sent": 0,
+      "status_only_no_decode": true
+    },
+    "first_final_cold_probe_before_host_ready": {
+      "connected": false,
+      "transport_error": true,
+      "elapsed_seconds": 10.016,
+      "video_records_received": 0,
+      "input_events_sent": 0,
+      "status_only_no_decode": true,
+      "disposition": "Probe ran before the login host was ready; failure retained. A later probe after host readiness succeeded."
+    },
+    "final_cold_start_quic_probe_after_host_ready": {
+      "seconds": 12,
+      "video_records_received": 300,
+      "hardware_encoder": "com.nvmtl.videoencoder.avc.nvenc",
+      "encode_failures": 0,
+      "input_events_sent": 0,
+      "status_only_no_decode": true
+    },
+    "live_decode_display_or_input_test_performed_in_this_repair": false,
+    "scope": "QUIC probes receive host status and compressed video records without decoding, displaying or injecting input. Record counts are not displayed FPS or an end-to-end latency measurement. The earlier driver rollback record contains a separate 30-second display test."
+  },
+  "power": {
+    "normal_guest_hot_reboot_event_received": true,
+    "ssh_and_login_remote_host_recovered_after_hot_reboot": true,
+    "normal_guest_shutdown_event_received": true,
+    "qemu_shutdown_reason": "shutdown",
+    "qemu_shutdown_log_at_utc": "2026-10-11T08:57:30.402Z",
+    "final_cold_start_and_remote_host_recovery_passed": true,
+    "forced_power_off_used_as_acceptance": false
+  },
+  "known_side_effects": {
+    "apple_qemu_guest_agent": {
+      "agent_exits_after_repair": true,
+      "guest_ping_available": false,
+      "guest_ping_exit_code": 1,
+      "observation": "Guest agent is not responding: QEMU guest agent is not connected",
+      "cause_evidence": "Read-only disassembly shows its startup requires kern.hv_vmm_present == 1; new Invalid guest agent environment logs confirm the failed check after the mapping reads 0.",
+      "successful_guest_agent_connection_before_repair_recorded": false,
+      "normal_shutdown_and_reboot_remain_verified": true
+    },
+    "hibernation_counter_mapping": "The names are swapped: hv_vmm_present reads the real hibernation counter while hibernatecount reads the original VMM state. Keep the verified hibernatemode 0 and sleep 0. This repair is not qualified with hibernation or sleep enabled.",
+    "other_vm_aware_tools_and_software_updates": "The global sysctl name mapping may affect VM-aware tools or macOS update behavior. These effects require separate validation; do not silently apply this as a universal default.",
+    "future_os_scope": "MinKernel/MaxKernel constrain the applied patches to Darwin 24. Darwin 25 and newer are excluded and untested. Recheck actual kernel patterns, upstream source, full backup and acceptance before any OS upgrade."
+  },
+  "account_login_acceptance": {
+    "apple_account_login_in_system_settings_verified": true,
+    "verification_source": "Explicit user confirmation in this chat after entering credentials and completing the login themselves",
+    "confirmation_recorded_at_utc": "2026-10-11T09:22:53Z",
+    "confirmation_time_scope": "UTC time when the tool read and recorded the user's confirmation; not the Apple server login time",
+    "app_store_login_separately_verified": false,
+    "imessage_login_verified": false,
+    "facetime_login_verified": false,
+    "icloud_subservices_individually_qualified": false,
+    "interpretation": "The user confirmed successful System Settings login after this bounded repair. This validates this machine and login attempt; it does not prove a unique root cause, account eligibility or a guaranteed fix for every VM."
+  },
+  "limits": {
+    "other_macos_builds_qualified": false,
+    "other_vm_hosts_qualified": false,
+    "long_running_stability_qualified": false,
+    "sleep_or_hibernation_qualified": false,
+    "macos_upgrade_qualified": false,
+    "all_auth_log_errors_resolved_verified": false,
+    "apple_coverage_or_serial_registration_queried": false,
+    "filled_identity_xml_plist_or_raw_logs_published": false,
+    "previous_driver_limitations_removed_by_this_repair": false
+  },
+  "sources": [
+    "https://github.com/sickcodes/Docker-OSX/blob/b282993a4a3bf6cb379cbcf406cc81c8d7582fe2/scripts/apply_appleid_kernelpatch.py",
+    "https://github.com/kholia/OSX-KVM/pull/264",
+    "https://github.com/apple-oss-distributions/xnu/blob/xnu-11417.140.69/osfmk/i386/tsc.c",
+    "https://github.com/apple-oss-distributions/xnu/blob/xnu-11417.140.69/iokit/Kernel/IOPlatformExpert.cpp"
+  ]
+}

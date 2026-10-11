@@ -11,7 +11,9 @@
     "docs/11-driver-upgrade-1.13.0.md",
     "docs/12-driver-upgrade-runbook.md",
     "results/observed-2026-10-11-1.13.0.json",
-    "results/observed-2026-10-11-rollback-1.9.0.json"
+    "results/observed-2026-10-11-rollback-1.9.0.json",
+    "docs/13-apple-id-troubleshooting.md",
+    "results/observed-2026-10-11-apple-id.json"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -120,6 +122,15 @@
       ]
     },
     {
+      "task": "Apple ID authentication and VM detection",
+      "paths": [
+        "docs/13-apple-id-troubleshooting.md",
+        "docs/03-opencore-and-identity.md",
+        "docs/05-remote-and-power.md",
+        "results/observed-2026-10-11-apple-id.json"
+      ]
+    },
+    {
       "task": "acceptance",
       "paths": [
         "docs/06-validation-and-troubleshooting.md",
@@ -155,7 +166,9 @@
     "Keep QEMU AppleSMC and use -vsmccomp; expect one AppleSMC service.",
     "Keep ProvideCustomSlide=true and host-managed GPU BAR settings at -1.",
     "API success is not pixel correctness or full application qualification.",
-    "Driver-only downgrade must preserve current guest data; validate supported installer --payload, unmodified target manifests and truthful VERSION marker; full old-VDisk restoration is a separate recovery decision."
+    "Driver-only downgrade must preserve current guest data; validate supported installer --payload, unmodified target manifests and truthful VERSION marker; full old-VDisk restoration is a separate recovery decision.",
+    "Apple ID troubleshooting preserves identity and keys; verify actual EFI, en0 built-in status, GUID NVRAM, expected Apple UUID derivation, network/time and authentication logs first. Scoped VMM sysctl patches are optional, excluded from default templates, and require reviewed fixed sources, full cold backup, target matches and same-version ocvalidate.",
+    "Keep CPU VMM feature for this VM. Darwin24 sysctl string mapping reads the real hibernation counter; keep sleep/hibernation disabled. It makes AppleQEMUGuestAgent exit and guest-ping unavailable; test normal power events separately. Roll back EFI configuration alone without restoring old guest disks."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
@@ -163,7 +176,9 @@
     "There was no formal GlideBeam0.2.0 release/tag before v0.2.1. The public0.2.1 release is verified; current Mac remains the developer-signed6a6210e local build showing0.2.0 with fallback, without installing the release or resetting TCC.",
     "H264 bitrate control on prior NVIDIA hardware paths was not qualified; fixed QP behavior was observed on 1.1.0.",
     "ES CPU marketing name remains Unknown; some CPUID fields round to 16/32.",
-    "Small OpenCL probes passed on1.10.0/1.13.0; the final1.9 driver-only downgrade fails argument setup before execution. No full Geekbench, long-run stability, other GPU or Apple ID qualification.",
+    "Small OpenCL probes passed on1.10.0/1.13.0; the final1.9 driver-only downgrade fails argument setup before execution. No full Geekbench, long-run stability or other GPU qualification. Subsequent Apple ID login in System Settings was user-confirmed on this VM; independent App Store login, iMessage, FaceTime and other VM/account combinations were not tested.",
+    "The subsequent Apple ID EFI repair changes global VMM sysctl names only on Darwin24. AppleQEMUGuestAgent now exits because the VM-detection value is not1; pre-fix successful host-agent connectivity was not recorded. Normal guest reboot and shutdown were independently verified. Other VM-aware tools, OS updates and hibernation need separate review.",
+    "After the Apple ID repair, GlideBeam production codec pixels passed and QUIC status/video records resumed after hot reboot and cold start. These short probes did not decode/display frames on Windows or inject input; they are separate from earlier driver rollback display acceptance.",
     "Generic exported scripts were not replayed end-to-end on another host."
   ],
   "companion_glidebeam_change": {
@@ -191,7 +206,7 @@
     "recorded_date": "2026-10-11",
     "requested_final_driver_package": "1.9.0",
     "latest_validated_driver_package": "1.9.0",
-    "stage": "driver-only1.9 downgrade, warm validation, final complete checkpoint, cold-start and NVENC QUIC recovery verified; GlideBeam0.2.1 publicly released",
+    "stage": "driver-only1.9 downgrade and GlideBeam0.2.1 release verified; subsequent Darwin24-scoped EFI Apple ID repair applied, System Settings login user-confirmed, normal power and NVENC QUIC recovery verified; built-in guest agent unavailable",
     "preserve_current_guest_data": true,
     "restore_old_vdisk_for_planned_downgrade": false,
     "installer_source": "official 1.13.0 tar installer --payload",
@@ -203,7 +218,9 @@
       "docs/11-driver-upgrade-1.13.0.md",
       "docs/12-driver-upgrade-runbook.md",
       "results/observed-2026-10-11-1.13.0.json",
-      "results/observed-2026-10-11-rollback-1.9.0.json"
+      "results/observed-2026-10-11-rollback-1.9.0.json",
+      "docs/13-apple-id-troubleshooting.md",
+      "results/observed-2026-10-11-apple-id.json"
     ],
     "post_checkpoint_cold_start_complete": true,
     "after_checkpoint_sha256_files_verified": 8,
@@ -213,6 +230,23 @@
     "post_cold_start_encoder_mode": "hardware",
     "post_cold_start_quic_video_records_received": 27,
     "post_cold_start_tcc_checks_pass": true,
-    "previous_checkpoints_retained": true
+    "previous_checkpoints_retained": true,
+    "subsequent_apple_id_repair": {
+      "driver_package_unchanged": "1.9.0",
+      "existing_identity_preserved": true,
+      "kernel_scope": "Darwin 24.x only",
+      "efi_kernel_patch_entries_added": 2,
+      "public_templates_include_patch_by_default": false,
+      "system_settings_login_user_confirmed": true,
+      "app_store_login_separately_verified": false,
+      "imessage_facetime_verified": false,
+      "cpu_vmm_feature_retained": true,
+      "hv_vmm_present": 0,
+      "built_in_qemu_guest_agent_available": false,
+      "normal_reboot_and_shutdown_passed": true,
+      "full_cold_backup_sha256_files_verified": 8,
+      "post_final_cold_start_quic_video_records_received": 300,
+      "post_final_cold_probe_windows_decode_or_input_tested": false
+    }
   }
 }

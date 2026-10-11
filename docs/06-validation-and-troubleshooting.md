@@ -63,5 +63,7 @@ GlideBeam 生产路径单独通过：实际 NVENC H.264，1920×1080 可见高�
 | CPU 显示 Unknown / 16 核 | ES 型号、sysctl 实际核数、QEMU APIC 信息 | 实际 10 / 20；目前名称未修复，无需加入失败的伪装 |
 | 鼠标键盘消失 | XHCI ports、USB 控制器 / 输入设备 | 保持实测 `ports=4`，不要改为 15 |
 | ROM / UUID 文本看似不同 | Vendor GUID、字节序、XNU UUID 派生 | 私下与本地配置核对，不重新随机生成身份 |
+| Apple ID 验证失败 / 未知错误 | 实际身份、内建 en0、时间 / 网络、Anisette / DeviceCheck 日志与 VMM 检测 | [第 13 章](13-apple-id-troubleshooting.md)记录本机的可选修补与用户登录成功；不把错误码当唯一根因 |
+| Apple ID 修补后 guest-ping 失败 | AppleQEMUGuestAgent 日志、hv_vmm_present 的值、已有代理连接基线 | 本机确认 sysctl 名称交换使内置代理退出；正常关机 / 重启另测，不声称所有 VM 工具仍可用 |
 
 排障前保留原配置和日志。公开 Issue 时仅分享版本、设备 ID、脱敏错误片段和测试结论，不包含账号、密码、序列号、MLB、UUID、ROM、MAC、私网地址或完整 XML。

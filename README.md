@@ -10,6 +10,8 @@
 
 本轮脱敏结果：[1.13.0](results/observed-2026-10-11-1.13.0.json)、[最终 1.9.0 驱动回退](results/observed-2026-10-11-rollback-1.9.0.json)。
 
+同日后续完成 [Apple ID 登录排障](docs/13-apple-id-troubleshooting.md)：保留现有身份，检查内建 `en0`、UUID 派生与认证日志后，为实际 EFI 加入限于 Darwin 24 的两项内核字符串修补。用户确认**系统设置中的 Apple ID 登录成功**；App Store 独立登录、iMessage 和 FaceTime 尚未单独验证。完整冷备、正常重启 / 关机和 GlideBeam NVENC 传流已复验。已确认副作用：macOS 内置 `AppleQEMUGuestAgent` 退出，`guest-ping` 不可用。该修补是按证据选择的可选步骤，公开安装模板没有默认加入。见[脱敏结果](results/observed-2026-10-11-apple-id.json)。
+
 **版本选择：**1.9.0 恢复 H.264 硬编，但本轮 OpenCL 探针失败、HEVC 硬编像素错误，Apple 软件 H.264 → Mac 硬解也有明显误差。1.13.0 的小规模 OpenCL / 软件编码→硬解通过，但 3060 没有硬编，GlideBeam 使用 Apple 软件 H.264。这次选择优先保留 H.264 远控路径，具体取舍与两轮证据都保留在第 11 章。
 
 **给 AI 使用：**先读根目录 [AGENTS.md](AGENTS.md)，再读 [AI 教材](docs/AI-GUIDE.md)和[机器索引](ai/knowledge.json)。教材末尾提供本地 / GitHub 阅读提示，可直接复制给接手的 AI。
@@ -26,9 +28,11 @@
 | HEVC / H.265 硬件解码 | 指定样本通过 | Apple 软件编码输入、1280×720、30 帧像素验收 |
 | H.264 硬件编码 | NVENC 生产路径通过 | GlideBeam 30 帧颜色 / 移动标记测试，可见 1080 / 编码 1088 高度 |
 | HEVC 硬件编码 | **像素失败** | API 成功但画面错误；不作为可用功能推荐 |
-| 远程桌面 | GlideBeam NVENC H.264 → Windows GPU 解码通过 | 1920×1080、30 秒实际显示 1374 帧、后段采样约 56.5fps；本轮未注入输入 |
+| 远程桌面 | GlideBeam NVENC H.264 → Windows GPU 解码通过 | 此前驱动回退阶段：1920×1080、30 秒实际显示 1374 帧；Apple ID 修补后另测 30 帧像素与短时传流，未复测 Windows 显示或注入输入 |
 | 关机 / 重启 | 通过 | `-vsmccomp` 消除双 AppleSMC；关机使 QEMU 正常退出 |
 | CPU | 10 核 20 线程可用 | ES 处理器的显示名称仍为 Unknown；部分 CPUID 信息显示 16/32 |
+| Apple ID | 系统设置登录成功 | 用户在修补后确认；其他 Apple 服务未单独验证 |
+| QEMU 客户机代理 | **当前不可用** | Apple ID 修补使内置代理退出；正常关机 / 重启另经宿主事件确认 |
 
 这些结果只覆盖下面这台机器和小规模验收，不能推导出所有 RTX 型号、应用、长时间负载或新版驱动都可用。RustDesk 的硬件编码能力还受客户端实现和 VideoToolbox 属性查询影响，不能仅凭“Metal 3”判断。
 
@@ -57,6 +61,8 @@
 7. [建立恢复点、回滚和发布 GitHub 仓库](docs/07-backup-and-publishing.md)。
 
 已有 VM 更新先读[通用升级流程](docs/12-driver-upgrade-runbook.md)，本次 [1.10.0 → 1.13.0 验证及只回退驱动到 1.9.0](docs/11-driver-upgrade-1.13.0.md)记录固定资产、脚本审查、完整冷备与逐项验收。历史过程见 [1.9.0 → 1.10.0](docs/10-driver-upgrade-1.10.0.md)和 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)。
+
+若系统设置或 App Store 提示“验证失败，发生未知错误”，读 [Apple ID 排障与取舍](docs/13-apple-id-troubleshooting.md)，先保留身份并定位错误，再决定是否需要修补；不要把这一步当作所有 VM 的安装前提。
 
 总体流程：
 

@@ -68,3 +68,5 @@ libvirt 中保留：
 这里的 `on_poweroff=destroy` 表示处理客户机已完成的 poweroff 事件，并非执行 `virsh destroy` 强行断电。实测关机两次均正常退出 QEMU，热重启后 SSH 恢复。
 
 先保存工作，再在 macOS 执行 `sudo shutdown -h now`，从宿主机验证 `virsh domstate macos15` 为 `shut off`；启动后再测 `sudo shutdown -r now`，确认网络恢复、显卡重新可用。宿主机 ACPI shutdown 和 Unraid 按钮可额外验证，但不能拿它们代替客户机发起的两项测试。不要用自动 hard poweroff 或看门狗掩盖尚未修好的系统关机。
+
+后续 [Apple ID 排障](13-apple-id-troubleshooting.md)中的可选 sysctl 字符串修补会让 macOS 内置 `AppleQEMUGuestAgent` 退出，`guest-ping` 不可用；这项副作用已通过本机日志和只读反汇编确认。修补后另测正常热重启，宿主收到 `reboot` 事件；正常关机后为 `shut off`，日志为 `reason=shutdown`，没有用 watchdog 或强制断电替代。代理通道的状态与客户机正常电源路径分别记录，需要代理功能时评估 EFI-only 回滚。

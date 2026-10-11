@@ -10,7 +10,7 @@
 macserial -g -m iMacPro1,1 -n 1
 ```
 
-取得同一行的 **SystemSerialNumber / MLB 配对**。将其作为本地参数，不复制本教程作者或其他机器的序列号。本次实际身份也来自官方 macserial；没有用 Apple 覆盖查询或 Apple ID 登录作为验收，因此不承诺 iMessage、FaceTime 或 Apple 激活状态。
+取得同一行的 **SystemSerialNumber / MLB 配对**。将其作为本地参数，不复制本教程作者或其他机器的序列号。本次实际身份也来自官方 macserial；初次安装没有用 Apple 覆盖查询或 Apple ID 登录作为验收。2026-10-11 排障保留了同一套身份，用户已确认系统设置中的 Apple 账户登录成功；App Store 独立登录、iMessage、FaceTime 仍未测试，也不据此承诺 Apple 激活状态。修复步骤与副作用见 [Apple ID 排障](13-apple-id-troubleshooting.md)，实际验收范围见 [脱敏结果](../results/observed-2026-10-11-apple-id.json)。
 
 在仓库目录执行，使用自己的 PCI BDF、序列号和 MLB：
 
@@ -76,6 +76,6 @@ py -3 tools/configure.py build --stage gpu --domain
 
 在自己的 Mac 上私下比较 `ioreg` / `nvram`，不要上传整份输出。OpenCore 将 SSN、MLB、ROM 写入 Apple vendor GUID `4D1EDE05-38C7-4A6A-9CC6-4BCCA8B38C14`；默认 `nvram -xp` 可能看不到这些命名空间变量，需按 `GUID:变量名` 查询 `SSN / HW_SSN / MLB / HW_MLB / ROM / HW_ROM`。
 
-`IOPlatformUUID` 由 XNU 通过 SMBIOS UUID 派生，并非一定等于 XML 的 UUID 字符串。UseRawUuidEncoding=false 还会影响字节序。不要仅凭两个文本不相同就重新生成 UUID。
+`IOPlatformUUID` 不必等于 XML 或 `Generic.SystemUUID` 的文本。当前 XNU 会读取 `/efi/platform/system-id`，加上其固定命名空间进行 SHA-1 派生，得到 version 5 UUID；OpenCore 的 `UseRawUuidEncoding` 还会影响传入 UUID 的字节序。本机在 `UseRawUuidEncoding=false` 下，libvirt 与 Generic 的 version 4 UUID 相同，运行时 version 5 UUID 经派生校验匹配。不要仅凭两个文本不相同就重新生成身份。
 
 参考：[OpenCore 身份更新代码](https://github.com/acidanthera/OpenCorePkg/blob/1.0.5/Library/OcMainLib/OpenCorePlatform.c)、[XNU 的 IOPlatformUUID 派生](https://github.com/apple-oss-distributions/xnu/blob/xnu-11417.140.69/iokit/Kernel/IOPlatformExpert.cpp)、[OpenCore 1.0.5 配置文档](https://github.com/acidanthera/OpenCorePkg/blob/1.0.5/Docs/Configuration.tex)。
