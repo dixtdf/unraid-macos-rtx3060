@@ -13,7 +13,9 @@
     "results/observed-2026-10-11-1.13.0.json",
     "results/observed-2026-10-11-rollback-1.9.0.json",
     "docs/13-apple-id-troubleshooting.md",
-    "results/observed-2026-10-11-apple-id.json"
+    "results/observed-2026-10-11-apple-id.json",
+    "docs/14-macos26-preparation.md",
+    "results/observed-2026-10-19-tahoe26-preparation.json"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -61,12 +63,23 @@
         "docs/11-driver-upgrade-1.13.0.md",
         "results/observed-2026-10-11-rollback-1.9.0.json"
       ]
+    },
+    {
+      "recorded_date": "2026-10-19",
+      "driver_package": "NullMoth 2.3.7 plus experimental RTX 3060 NVENC overlay",
+      "scope": "macOS15 H264 probe and GlideBeam30frame pixel qualification; preserve first55.33fps qualification failure and warm60.003fps pass; not end-to-end60fps or macOS26 acceptance",
+      "paths": [
+        "docs/14-macos26-preparation.md",
+        "results/observed-2026-10-19-tahoe26-preparation.json"
+      ],
+      "external_record": "https://github.com/dixtdf/nvidia-macos-driver-3060-nvenc/blob/main/docs/upgrade-2026-10-19-v2.3.7.md"
     }
   ],
   "version_compatibility": {
     "1.10.0": "Historical reference RTX3060 VM validation: H264/HEVC hardware encoder creation unavailable(-12908), software encode to NVIDIA hardware decode pixels passed. Companion GlideBeam fallback source uses AppleSW H264 and Windows GPU decode. Application version0.2.0 is a local-build field, not evidence of a formal release; verify exact commit/binary.",
     "1.9.0": "Last release checked through 1.13.0 with Ampere H264 NVENC registration. Fresh driver-only downgrade completed; GlideBeam production H264 NVENC pixels pass with coded height1088 and Windows GPU real 30s/1374frames. OpenCL clSetKernelArg=-49, both kernels unexecuted; HEVC HW encode severe pixel failure; Apple SW H264 to NVIDIA HW decode YMAE11.3773 marginally below old threshold12 and not broad correctness.",
-    "1.13.0": "Blackwell-only H264/HEVC hardware encoder registration remains; RTX3060 RequireHardware returns -12908. Apple software encode to NVIDIA hardware decode pixels pass. GlideBeam software H264 to Windows GPU decode passes in a 30s owned-animation test; no input or VNC desktop-content acceptance in this run."
+    "1.13.0": "Blackwell-only H264/HEVC hardware encoder registration remains; RTX3060 RequireHardware returns -12908. Apple software encode to NVIDIA hardware decode pixels pass. GlideBeam software H264 to Windows GPU decode passes in a 30s owned-animation test; no input or VNC desktop-content acceptance in this run.",
+    "2.3.7-with-3060-nvenc-overlay": "Current2026-10-19 macOS15.8.1 reference installation with experimental fixed NVENC overlay; new cold backup and isolated26trial prepared. Official package contains distinct os15/os26 NVAccel, but Darwin25 AuxKC and macOS26 NVENC qualification must be performed on actual26; nothing installed on26 in this preparation task."
   },
   "routes": [
     {
@@ -148,6 +161,14 @@
         "tools/check_publication.py",
         "NOTICE.md"
       ]
+    },
+    {
+      "task": "macOS26 upgrade preparation and isolated trial",
+      "paths": [
+        "docs/14-macos26-preparation.md",
+        "results/observed-2026-10-19-tahoe26-preparation.json",
+        "docs/12-driver-upgrade-runbook.md"
+      ]
     }
   ],
   "required_private_fields": [
@@ -168,18 +189,20 @@
     "API success is not pixel correctness or full application qualification.",
     "Driver-only downgrade must preserve current guest data; validate supported installer --payload, unmodified target manifests and truthful VERSION marker; full old-VDisk restoration is a separate recovery decision.",
     "Apple ID troubleshooting preserves identity and keys; verify actual EFI, en0 built-in status, GUID NVRAM, expected Apple UUID derivation, network/time and authentication logs first. Scoped VMM sysctl patches are optional, excluded from default templates, and require reviewed fixed sources, full cold backup, target matches and same-version ocvalidate.",
-    "Keep CPU VMM feature for this VM. Darwin24 sysctl string mapping reads the real hibernation counter; keep sleep/hibernation disabled. It makes AppleQEMUGuestAgent exit and guest-ping unavailable; test normal power events separately. Roll back EFI configuration alone without restoring old guest disks."
+    "Keep CPU VMM feature for this VM. Darwin24 sysctl string mapping reads the real hibernation counter; keep sleep/hibernation disabled. It makes AppleQEMUGuestAgent exit and guest-ping unavailable; test normal power events separately. Roll back EFI configuration alone without restoring old guest disks.",
+    "Dedicated clone preserves Apple identity and NIC address and shares the physical GPU; never run it concurrently with original. Keep original15 EFI unchanged. Disable both old Darwin24 AppleID string swaps before enabling RestrictEvents sbvmm on24; never widen those swaps to25. Before launching the OS installer, offline-switch clone to nvoff EFI and first verify VNC/SSH on15. Reinstall matching official driver on actual26, load base NVRM before NVENC overlay, and requalify before promotion."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
-    "Apple software fallback increases CPU usage; 1080p/30 FPS and 8 Mbps are fallback configuration targets, not measured guarantees. Current1.9 production hardware path configures60fps with codedheight1088.",
-    "There was no formal GlideBeam0.2.0 release/tag before v0.2.1. The public0.2.1 release is verified; current Mac remains the developer-signed6a6210e local build showing0.2.0 with fallback, without installing the release or resetting TCC.",
+    "Apple software fallback increases CPU usage; 1080p/30 FPS and 8 Mbps are fallback configuration targets, not measured guarantees. Historical2026-10-11 1.9 production hardware path configures60fps with codedheight1088.",
+    "There was no formal GlideBeam0.2.0 release/tag before v0.2.1. The public0.2.1 release is verified; Mac at that recorded stage remained the developer-signed6a6210e local build showing0.2.0 with fallback, without installing the release or resetting TCC.",
     "H264 bitrate control on prior NVIDIA hardware paths was not qualified; fixed QP behavior was observed on 1.1.0.",
     "ES CPU marketing name remains Unknown; some CPUID fields round to 16/32.",
     "Small OpenCL probes passed on1.10.0/1.13.0; the final1.9 driver-only downgrade fails argument setup before execution. No full Geekbench, long-run stability or other GPU qualification. Subsequent Apple ID login in System Settings was user-confirmed on this VM; independent App Store login, iMessage, FaceTime and other VM/account combinations were not tested.",
     "The subsequent Apple ID EFI repair changes global VMM sysctl names only on Darwin24. AppleQEMUGuestAgent now exits because the VM-detection value is not1; pre-fix successful host-agent connectivity was not recorded. Normal guest reboot and shutdown were independently verified. Other VM-aware tools, OS updates and hibernation need separate review.",
     "After the Apple ID repair, GlideBeam production codec pixels passed and QUIC status/video records resumed after hot reboot and cold start. These short probes did not decode/display frames on Windows or inject input; they are separate from earlier driver rollback display acceptance.",
-    "Generic exported scripts were not replayed end-to-end on another host."
+    "Generic exported scripts were not replayed end-to-end on another host.",
+    "2026-10-19 preparation has not booted the trial clone or installed macOS26. ocvalidate, Apple signature and package os26 payload are not boot/Metal/NVENC/AppleID/audio acceptance; use the new dated result instead of historical current-version wording."
   ],
   "companion_glidebeam_change": {
     "pull_request": "https://github.com/dixtdf/GlideBeam/pull/1",
@@ -200,9 +223,10 @@
     "anonymous_asset_head_all_200": true,
     "release_installed_over_current_mac_app": false,
     "prior_formal_0_2_0_release_exists": false,
-    "deployed_0_2_0_local_build_contains_fallback": true
+    "deployed_0_2_0_local_build_contains_fallback": true,
+    "recorded_date": "2026-10-11"
   },
-  "current_operation": {
+  "historical_operation_2026_10_11": {
     "recorded_date": "2026-10-11",
     "requested_final_driver_package": "1.9.0",
     "latest_validated_driver_package": "1.9.0",
@@ -248,5 +272,20 @@
       "post_final_cold_start_quic_video_records_received": 300,
       "post_final_cold_probe_windows_decode_or_input_tested": false
     }
+  },
+  "current_operation": {
+    "recorded_date": "2026-10-19",
+    "task": "Prepare isolated macOS26 upgrade, do not execute OS installation",
+    "current_macos": "15.8.1",
+    "current_build": "24H32",
+    "latest_validated_driver_package": "2.3.7 plus fixed experimental RTX3060 NVENC overlay",
+    "target_macos": "26.7.1",
+    "target_build": "25G241",
+    "stage": "Cold backup completed, clone defined/off/not booted, EFI phases and recovery kit prepared; Apple-signed full package on readonly media, host and guest full SHA256 match",
+    "os_upgrade_executed": false,
+    "paths": [
+      "docs/14-macos26-preparation.md",
+      "results/observed-2026-10-19-tahoe26-preparation.json"
+    ]
   }
 }

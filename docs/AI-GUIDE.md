@@ -6,11 +6,13 @@
 
 入口是根目录 [AGENTS.md](../AGENTS.md)，整体说明在 [README](../README.md)，机器索引在 [ai/knowledge.json](../ai/knowledge.json)，参考实测在 [results/observed-2026-10-09.json](../results/observed-2026-10-09.json)。
 
-本轮资料见 [1.13.0 验证及只回退驱动到 1.9.0](11-driver-upgrade-1.13.0.md)、[1.13.0 实测](../results/observed-2026-10-11-1.13.0.json)和[最终 1.9.0 回退实测](../results/observed-2026-10-11-rollback-1.9.0.json)，后续更新阅读全文[通用升级流程](12-driver-upgrade-runbook.md)。1.13.0 的安装、43 项 payload、Metal / OpenCL、软件编解码像素与 GlideBeam 实际软件传输已验证；随后仅替换驱动回到 1.9.0，42 项 payload、Metal、GlideBeam NVENC 生产路径与实际 Windows 解码通过。最终 1.9.0 完整冷备 / 冷启动及远控恢复通过；接手时仍需只读确认当前现场状态。
+**2026-10-19 的接手入口：**读[第 14 章：26 准备](14-macos26-preparation.md)与[本轮状态](../results/observed-2026-10-19-tahoe26-preparation.json)。生产 15.8.1 / 24H32 当前使用 [2.3.7 + 实验性 NVENC 补丁](https://github.com/dixtdf/nvidia-macos-driver-3060-nvenc/blob/main/docs/upgrade-2026-10-19-v2.3.7.md)，不是下文历史 1.9.0。已冷备并定义隔离克隆，尚未启动克隆或安装 26；当前只授权准备时，不把试升或运行 `startosinstall` 写成已完成。15 上的 60.003 FPS 编码探针不代表端到端或 26 通过，首次 55.33 FPS 资格失败仍需保留。
+
+2026-10-11 历史资料见 [1.13.0 验证及只回退驱动到 1.9.0](11-driver-upgrade-1.13.0.md)、[1.13.0 实测](../results/observed-2026-10-11-1.13.0.json)和[该轮最终 1.9.0 回退实测](../results/observed-2026-10-11-rollback-1.9.0.json)，后续更新阅读全文[通用升级流程](12-driver-upgrade-runbook.md)。1.13.0 的安装、43 项 payload、Metal / OpenCL、软件编解码像素与 GlideBeam 实际软件传输已验证；随后仅替换驱动回到 1.9.0，42 项 payload、Metal、GlideBeam NVENC 生产路径与实际 Windows 解码通过。该轮最终 1.9.0 完整冷备 / 冷启动及远控恢复通过；接手时仍需只读确认当前现场状态。
 
 后续 [Apple ID 排障](13-apple-id-troubleshooting.md)与[脱敏结果](../results/observed-2026-10-11-apple-id.json)记录了新的 EFI 修改：保留身份与 CPU VMM 位，仅增加两项 Darwin 24 字符串修补。用户确认系统设置登录成功；内置 QEMU 客户机代理因检测值变化而退出，正常关机 / 重启与 NVENC 传流另经复测。初装及驱动回退时的 Apple ID 未测和 EFI 未变结论属于各自历史阶段，不能拿它们覆盖本次后续事实。
 
-[1.9.0 历史实测](../results/observed-2026-10-11-1.9.0.json)与 [1.10.0 实测](../results/observed-2026-10-11-1.10.0.json)保持原有范围。1.10.0～1.13.0 的源码不为 RTX 3060 注册硬编，生产远控需要 Apple 软件 H.264 回退；[GlideBeam v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)已正式发布，四 ZIP 和 SHA 清单、架构、公开内容都已验证。GitHub 记录核对发现此前没有正式 0.2.0 release，历史章节中的“0.2.0 下载包”描述不作为当前发布证据；旧本地构建是否包含回退要看提交。本机仍保留 `6a6210e` 开发签名构建，虽显示 0.2.0 但已有回退，没有换装正式包或重置授权。必须记录实际构建和签名来源，不能只看应用版本号。
+[1.9.0 历史实测](../results/observed-2026-10-11-1.9.0.json)与 [1.10.0 实测](../results/observed-2026-10-11-1.10.0.json)保持原有范围。1.10.0～1.13.0 的源码不为 RTX 3060 注册硬编，当时生产远控需要 Apple 软件 H.264 回退；10 月 11 日 [GlideBeam v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)正式发布，四 ZIP 和 SHA 清单、架构、公开内容均经验证。GitHub 记录核对发现此前没有正式 0.2.0 release，历史章节中的“0.2.0 下载包”描述不作为当前发布证据；旧本地构建是否包含回退要看提交。当时本机保留 `6a6210e` 开发签名构建，虽显示 0.2.0 但已有回退，没有换装正式包或重置授权。这些是该日期的快照，不能据此判断后续现场应用版本；必须记录实际构建和签名来源。
 
 不要只搜索某个 boot-arg 后立即修改配置。先读对应完整章节，了解该参数的前置条件和与其他层次的关系：
 
@@ -24,6 +26,7 @@
 | 已有驱动升级或仅回退驱动 | 12 通用流程、11 本轮记录、04 固定包 | 固定资产 / manifest、完整冷备、payload 接口、逐项原生与实际远控验收 |
 | CPU 身份或序列号维护 | 03 身份、01 CPU | 本地 settings / 现有 EFI，不重新生成身份 |
 | Apple ID 验证失败 | 13 登录排障、03 身份 | 实际 EFI / en0 / GUID NVRAM、认证错误与 VMM sysctl，先核对再选择可回滚修补 |
+| 准备 / 试升 macOS 26 | 14 升级准备、12 通用流程、2.3.7 适配仓库 | 独立冷备 / 互斥克隆、Apple 签名包、RE 与旧补丁冲突审查、实际 Darwin 25 AuxKC 与 NVENC 复验 |
 | 公开 GitHub | 07 发布、本文件 | check_publication.py，人工检查历史 / 截图 |
 
 脚本路径与章节链接见索引。读完脚本再执行；不要把 script 中的模板路径当作当前机器已经存在的文件。
@@ -85,7 +88,7 @@
 
 正常关闭 VM，确认两 PCI 功能为 VFIO 且无人占用，再调整 BAR1。脚本必须支持失败后重新绑定，不能把 `virsh` 放进 libvirt hook。另行验证 Unraid 重启后的配置 / 钩子恢复，不把手动成功当成自动启动成功。
 
-按第 04 章选择固定 payload、完整校验并安装四个 kext / KC / 用户态组件；初装需要 GPU 阶段 EFI，已有 VM 更新保留原 EFI。当前驱动为已完成完整冷备 / 冷启动的 1.9.0 H.264 NVENC 路径，1.13.0 独立记录保留。已有 VM 更新按第 12 章建立完整冷备、审查对应版本脚本、验证远控与电源，实际范例见第 11 章，历史为第 09 / 10 章。切换虚拟显示器前确认客户机远程服务与可见内容，不能以 VNC 端口可达代替桌面验收。
+按第 04 章选择固定 payload、完整校验并安装四个 kext / KC / 用户态组件；初装需要 GPU 阶段 EFI，已有 VM 更新保留原 EFI。10 月 11 日的 1.9.0 H.264 NVENC 和 1.13.0 独立记录保留；10 月 19 日当前版本为 2.3.7 + 实验性补丁，按本文件开头的新记录接手。已有 VM 更新按第 12 章建立完整冷备、审查对应版本脚本、验证远控与电源。切换虚拟显示器前确认客户机远程服务与可见内容，不能以 VNC 端口可达代替桌面验收。
 
 退出条件：BAR1 8GiB、驱动加载、NVIDIA Metal 设备可枚举、原生复制 / 计算 / 渲染通过。物理屏幕和远程画面也应实际确认。
 
@@ -130,6 +133,8 @@ SMC 预期一个 AppleSMC 服务，VirtualSMC IOService 为零；kext 仍加载�
 更新教材时同时维护对应章节和 `ai/knowledge.json`，避免与实测摘要矛盾。新测结果放新的日期文件，不覆盖旧基线冒充同一轮测试。
 
 驱动更新交接另按第 12 章记录：固定 release / commit / 资产摘要、manifest 与安装后 payload 项数、安装脚本来源、阶段退出条件、升级前后完整冷备检查、当前实际编码模式、原生像素与真实显示帧数、失败 / 未测项、私有恢复点路径及正式应用 release 状态。不要将 CI 成功写成已经发布，或将计划的最终版本写成已完成。
+
+macOS 26 交接另记录克隆是否真正启动、APFS 是否扩容、安装包 Apple 签名、当前 EFI 阶段及 `-nvoff` 状态。不要让相同身份 / MAC 的原机和克隆同时启动；不要把旧 Apple ID 补丁扩至 Darwin 25，或与 RestrictEvents 在 Darwin 24 同时启用；不要在 15 上预造 26 AuxKC。26 的基础驱动真实加载后才运行有 loaded-NVRM 保护的 NVENC 工具，并重新验证像素、实际远控、音频、电源和用户 Apple ID。详见第 14 章的阶段门槛。
 
 ## 可复制给 AI 的提示
 

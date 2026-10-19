@@ -1,22 +1,24 @@
 # Unraid 上的 macOS 15.8.1 + RTX 3060 直通
 
-> **远程桌面推荐：[GlideBeam / 光梭 v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)** 是我们新开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。它支持 H.264、剪贴板共享和文件传输，硬编优先、Apple 软件 H.264 回退，以及分别显示 Mac 编码 / Windows 解码模式。正式版提供 Windows x64 / ARM64、Mac Intel / Apple Silicon 四个包和 SHA256 清单，已校验下载、ZIP 与架构。本机仍保留同功能 `6a6210e` Mac 开发签名构建（显示 0.2.0），没有替换签名或重置授权。当前面向已登录的 Mac 桌面，保留 SSH / VNC 作为登录前操作和故障救援入口。
+> **远程桌面推荐：[GlideBeam / 光梭](https://github.com/dixtdf/GlideBeam)** 是我们开发的 Windows 到 Mac 局域网远控软件，可临时替代延迟高、体验不佳的 VNC / RustDesk。支持 H.264、剪贴板共享、文件传输和编解码模式信息。下载见[正式发布](https://github.com/dixtdf/GlideBeam/releases)，实际编码路径应按驱动和应用构建重新验证。保留 SSH / VNC 作为登录前操作和故障救援入口；下文 0.2.1 发布与 `6a6210e` 开发构建的验收属于 10 月 11 日历史。
 
 一份基于实际安装过程整理的中文教程：在 Unraid / QEMU 中安装 macOS Sequoia 15.8.1，再使用 [NullMoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver)驱动 RTX 3060 12GB，保留远程访问，并修复关机后 QEMU 不退出的问题。
 
-2026-10-11 完成 **NullMoth 1.13.0** 独立验收后，按用户选择仅替换驱动回到 **1.9.0**，保留当前用户数据、EFI、身份和 GlideBeam。最终使用 **NVENC H.264 → Windows GPU 解码**；环境仍为 OpenCore 1.0.5、macOS 15.8.1（24H32）。升级前、1.13.0 后、最终 1.9.0 的三个完整冷备均通过 8 项 SHA256 复核，最终冷启动和远控恢复通过。过程见[1.13.0 验证及回退 1.9.0](docs/11-driver-upgrade-1.13.0.md)，后续按[通用升级流程](docs/12-driver-upgrade-runbook.md)执行。
+**2026-10-19 当前状态：**生产系统仍为 macOS 15.8.1 / 24H32、OpenCore 1.0.5，驱动已更新为 **NullMoth 2.3.7 + 实验性 RTX 3060 NVENC 补丁**，见[固定资产与实测记录](https://github.com/dixtdf/nvidia-macos-driver-3060-nvenc/blob/main/docs/upgrade-2026-10-19-v2.3.7.md)。已建立新冷备、隔离试验克隆及 macOS 26.7.1 / 25G241 升级准备；**尚未安装 26，克隆尚未开机验收**。详见[第 14 章](docs/14-macos26-preparation.md)和[脱敏状态](results/observed-2026-10-19-tahoe26-preparation.json)。15 上的 NVENC 测试不代表 26 已支持，也不代表远控端到端稳定 60 FPS。
+
+**2026-10-11 历史阶段：**完成 **NullMoth 1.13.0** 独立验收后，按用户选择仅替换驱动回到 **1.9.0**，保留当时的用户数据、EFI、身份和 GlideBeam。该轮最终使用 **NVENC H.264 → Windows GPU 解码**；环境为 OpenCore 1.0.5、macOS 15.8.1（24H32）。升级前、1.13.0 后、最终 1.9.0 的三个完整冷备均通过 8 项 SHA256 复核，最终冷启动和远控恢复通过。过程见[1.13.0 验证及回退 1.9.0](docs/11-driver-upgrade-1.13.0.md)，后续按[通用升级流程](docs/12-driver-upgrade-runbook.md)执行。
 
 [1.1.0 基线](results/observed-2026-10-09.json)、[1.9.0 历史升级](docs/09-driver-upgrade-1.9.0.md)和 [1.10.0 软件回退记录](docs/10-driver-upgrade-1.10.0.md)保留原有版本与范围。本仓库是安装记录和配置工具，不是 NVIDIA 驱动项目。
 
-本轮脱敏结果：[1.13.0](results/observed-2026-10-11-1.13.0.json)、[最终 1.9.0 驱动回退](results/observed-2026-10-11-rollback-1.9.0.json)。
+10 月 11 日脱敏结果：[1.13.0](results/observed-2026-10-11-1.13.0.json)、[该轮最终 1.9.0 驱动回退](results/observed-2026-10-11-rollback-1.9.0.json)。
 
 同日后续完成 [Apple ID 登录排障](docs/13-apple-id-troubleshooting.md)：保留现有身份，检查内建 `en0`、UUID 派生与认证日志后，为实际 EFI 加入限于 Darwin 24 的两项内核字符串修补。用户确认**系统设置中的 Apple ID 登录成功**；App Store 独立登录、iMessage 和 FaceTime 尚未单独验证。完整冷备、正常重启 / 关机和 GlideBeam NVENC 传流已复验。已确认副作用：macOS 内置 `AppleQEMUGuestAgent` 退出，`guest-ping` 不可用。该修补是按证据选择的可选步骤，公开安装模板没有默认加入。见[脱敏结果](results/observed-2026-10-11-apple-id.json)。
 
-**版本选择：**1.9.0 恢复 H.264 硬编，但本轮 OpenCL 探针失败、HEVC 硬编像素错误，Apple 软件 H.264 → Mac 硬解也有明显误差。1.13.0 的小规模 OpenCL / 软件编码→硬解通过，但 3060 没有硬编，GlideBeam 使用 Apple 软件 H.264。这次选择优先保留 H.264 远控路径，具体取舍与两轮证据都保留在第 11 章。
+**10 月 11 日版本选择：**1.9.0 恢复 H.264 硬编，但该轮 OpenCL 探针失败、HEVC 硬编像素错误，Apple 软件 H.264 → Mac 硬解也有明显误差。1.13.0 的小规模 OpenCL / 软件编码→硬解通过，但 3060 没有硬编，GlideBeam 使用 Apple 软件 H.264。当时选择优先保留 H.264 远控路径，具体取舍与两轮证据都保留在第 11 章；不代表后续 2.3.7 适配补丁的结论。
 
 **给 AI 使用：**先读根目录 [AGENTS.md](AGENTS.md)，再读 [AI 教材](docs/AI-GUIDE.md)和[机器索引](ai/knowledge.json)。教材末尾提供本地 / GitHub 阅读提示，可直接复制给接手的 AI。
 
-## 当前 1.9.0 回退后的实测结果
+## 2026-10-11：1.9.0 回退后的历史实测
 
 | 项目 | 结果 | 范围 |
 | --- | --- | --- |
@@ -63,6 +65,8 @@
 已有 VM 更新先读[通用升级流程](docs/12-driver-upgrade-runbook.md)，本次 [1.10.0 → 1.13.0 验证及只回退驱动到 1.9.0](docs/11-driver-upgrade-1.13.0.md)记录固定资产、脚本审查、完整冷备与逐项验收。历史过程见 [1.9.0 → 1.10.0](docs/10-driver-upgrade-1.10.0.md)和 [1.1.0 → 1.9.0](docs/09-driver-upgrade-1.9.0.md)。
 
 若系统设置或 App Store 提示“验证失败，发生未知错误”，读 [Apple ID 排障与取舍](docs/13-apple-id-troubleshooting.md)，先保留身份并定位错误，再决定是否需要修补；不要把这一步当作所有 VM 的安装前提。
+
+准备跨版本升级到 macOS 26 时，先读[第 14 章](docs/14-macos26-preparation.md)。旧 Apple ID 修补与 RestrictEvents 有相互作用，Darwin 25 驱动 / AuxKC 和 NVENC 也必须重新验收，不能把 15 的 EFI 或驱动结果直接外推。
 
 总体流程：
 

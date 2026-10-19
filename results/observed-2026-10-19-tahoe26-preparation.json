@@ -1,0 +1,150 @@
+{
+  "schema": "unraid-macos.tahoe-preparation.v1",
+  "recorded_date": "2026-10-19",
+  "record_type": "sanitized upgrade preparation, not macOS 26 installation acceptance",
+  "current_production": {
+    "macos": "15.8.1",
+    "build": "24H32",
+    "opencore": "1.0.5 RELEASE",
+    "lilu": "1.7.1",
+    "whatevergreen": "1.7.0",
+    "driver_package": "NullMoth 2.3.7",
+    "nvenc_overlay": "experimental RTX 3060 adapter; fixed candidate from adapter repository",
+    "gpu": "RTX 3060 12GB",
+    "system_product_name": "iMacPro1,1",
+    "production_efi_modified_for_tahoe": false,
+    "running_after_backup": true,
+    "remote_host_running_after_restart": true,
+    "driver_record": "https://github.com/dixtdf/nvidia-macos-driver-3060-nvenc/blob/main/docs/upgrade-2026-10-19-v2.3.7.md",
+    "h264_probe_scope": {
+      "warm_3600_frame_fps": 60.003,
+      "warm_encode_p95_ms": 2.776,
+      "warm_errors": 0,
+      "warm_drops": 0,
+      "first_qualification_fps": 55.33,
+      "first_qualification_passed": false,
+      "first_failure_evidence_preserved": true,
+      "glidebeam_30_frame_pixels_passed": true,
+      "proves_end_to_end_stable_60fps": false
+    }
+  },
+  "target": {
+    "macos": "26.7.1",
+    "build": "25G241",
+    "darwin_major": 25,
+    "apple_product": "142-28081",
+    "listed_by_apple_softwareupdate": true,
+    "current_model_officially_supported": false
+  },
+  "cold_backup": {
+    "completed_with_vm_shut_off": true,
+    "system_disk_efi_delivery_nvram_and_xml_included": true,
+    "independent_reflink_files_verified": true,
+    "qcow2_check_passed": true,
+    "metadata_hashes_verified": true,
+    "includes_root_owned_recovery_kit": true,
+    "includes_new_os_installer_package": false,
+    "separate_physical_storage_copy_claimed": false
+  },
+  "trial_clone": {
+    "defined": true,
+    "booted": false,
+    "autostart": false,
+    "running": false,
+    "independent_disks_and_nvram": true,
+    "virtual_system_disk_gib": 240,
+    "apfs_grown": false,
+    "preserves_existing_apple_identity": true,
+    "preserves_network_interface_address": true,
+    "must_not_run_with_original": true,
+    "passthrough_gpu_exclusive": true,
+    "legacy_delivery_removed_from_clone": true,
+    "virtual_vga_and_loopback_qemu_vnc_staged": true,
+    "clone_remote_access_verified": false,
+    "live_production_blocks_trial_start_verified": true
+  },
+  "efi_preparation": {
+    "primary_opencore": "1.0.5 RELEASE",
+    "primary_ocvalidate_passed": true,
+    "standby_opencore": "1.0.8 RELEASE",
+    "standby_ocvalidate_passed": true,
+    "standby_activated": false,
+    "restrict_events": "1.1.6",
+    "restrict_events_min_kernel": "24.0.0",
+    "restrict_events_max_kernel": "25.99.99",
+    "clone_additional_boot_args": "revpatch=sbvmm revblock=none revcpu=0 -no_compat_check",
+    "both_legacy_apple_id_string_patches_disabled_in_clone": true,
+    "legacy_patch_bounds_widened_to_darwin25": false,
+    "first_tahoe_boot_adds_nvoff": true,
+    "actual_boot_qualification": "pending"
+  },
+  "installer_media": {
+    "package_download_complete": true,
+    "validated_http_ranges": true,
+    "exact_bytes": 18380974544,
+    "sha256": "ca854f49dfdedbe78492c26d0e4172ee4d37573e2d375ca90c083d7615b6f48a",
+    "apple_signature_verified": true,
+    "signature_chain": [
+      "Software Update",
+      "Apple Software Update Certification Authority",
+      "Apple Root CA"
+    ],
+    "package_identifier": "com.apple.pkg.InstallAssistant.macOSTahoe",
+    "package_metadata_version": "25.6.241",
+    "installer_app_bundle_version": "21.7.02",
+    "target_os_version_source": "matching Apple softwareupdate catalog; package and app versions are not target OS versions",
+    "guest_full_package_sha256_verified": true,
+    "readonly_delivery_image_gib": 24,
+    "readonly_delivery_image_ready": true,
+    "readonly_media_added_to_both_clone_display_profiles": true,
+    "bootable_createinstallmedia_usb_created": false,
+    "install_assistant_app_installed": false,
+    "startosinstall_executed": false,
+    "temporary_live_media_detached_from_production": true
+  },
+  "recovery": {
+    "root_owned_kit_and_exact_asset_hashes_verified": true,
+    "isolated_python39_checked": true,
+    "official_237_contains_os15_and_os26_nv_accel": true,
+    "os15_nv_accel_sha256": "95bb946ad298f228fa489aecab9cc0bc149f74981658566e99233c479193269c",
+    "os26_nv_accel_sha256": "881569a85c9a6c5af67a8c7bda6c1df72484419fafe3d35e93db47b133f615e5",
+    "darwin25_auxkc_built_on_darwin24": false,
+    "requires_official_driver_reinstall_on_actual_26": true,
+    "nvenc_overlay_requires_matching_loaded_base_nvrm": true,
+    "cross_os_lastgood_rollback_claimed": false,
+    "production_boot_disk_rejected_by_trial_guard": true,
+    "os15_refuses_os26_driver_repair_verified": true,
+    "guarded_repair_helper_staged_on_readonly_media": true
+  },
+  "macos26_acceptance": {
+    "installed": false,
+    "metal": "not tested",
+    "h264_nvenc": "not tested",
+    "glidebeam_end_to_end": "not tested",
+    "audio": "not tested",
+    "apple_id": "not tested",
+    "normal_shutdown_and_restart": "not tested"
+  },
+  "next_steps": [
+    "Boot the mutually exclusive clone on original 15.8.1 and verify EFI, remote access and installer acceptance.",
+    "Before starting the actual upgrade installer, shut the clone off, switch offline to the nvoff profile, and verify that profile on original 15 with VNC and SSH.",
+    "Only during the later actual-upgrade phase, install 26 on the clone and rebuild matching driver AuxKC on actual Darwin 25.",
+    "Load the matching base driver before applying NVENC overlay, then complete new OS qualification before promotion."
+  ],
+  "paths": [
+    "docs/14-macos26-preparation.md"
+  ],
+  "validation": {
+    "unit_tests_passed": 10,
+    "public_files_scanned": 50,
+    "public_and_private_bash_scripts_syntax_passed": 22,
+    "oc105_phase_and_clone_readback_validated": true,
+    "oc108_standby_validated": true,
+    "original_efi_config_and_persistent_vm_xml_identical": true,
+    "production_237_kexts_loaded": true,
+    "production_remote_host_running": true,
+    "production_vnc_rfb_banner_received": true,
+    "trial_still_off_never_booted": true,
+    "no_system_upgrade_installer_executed": true
+  }
+}
