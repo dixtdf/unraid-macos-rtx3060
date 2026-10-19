@@ -6,11 +6,11 @@
 
 入口是根目录 [AGENTS.md](../AGENTS.md)，整体说明在 [README](../README.md)，机器索引在 [ai/knowledge.json](../ai/knowledge.json)，参考实测在 [results/observed-2026-10-09.json](../results/observed-2026-10-09.json)。
 
-**2026-10-19 的接手入口：**读[第 14 章：26 准备](14-macos26-preparation.md)与[本轮状态](../results/observed-2026-10-19-tahoe26-preparation.json)。生产 15.8.1 / 24H32 当前使用 [2.3.7 + 实验性 NVENC 补丁](https://github.com/dixtdf/nvidia-macos-driver-3060-nvenc/blob/main/docs/upgrade-2026-10-19-v2.3.7.md)，不是下文历史 1.9.0。已冷备并定义隔离克隆，尚未启动克隆或安装 26；当前只授权准备时，不把试升或运行 `startosinstall` 写成已完成。15 上的 60.003 FPS 编码探针不代表端到端或 26 通过，首次 55.33 FPS 资格失败仍需保留。
+**2026-10-19 的接手入口：**隔离克隆已完成 **macOS Tahoe 26.7.1 / 25G241（Darwin 25.6.0）** 升级，保留 OpenCore 1.0.5，使用 **NullMoth 2.3.7 os26 + 实验性 RTX 3060 NVENC 补丁**。Metal 三项、H.264 3600 帧硬编像素资格通过（**60.004 FPS、编码 p95 3.502 ms**），重启后的 Metal / GlideBeam 30 帧硬编像素复验通过；**用户已确认光梭实际连接和控制正常**。首次设置完成，当前为纯显卡直通、EFI / 系统两盘、20 vCPU / 16 GiB，已移除 `-nvoff`、虚拟显示和安装介质。正常重启、关机及最终完整冷备通过，26 已重新开机；原 15.8.1 关闭保留，必须互斥。资格测试不等于端到端稳定 60 FPS；音频内容、26 上重新登录 Apple ID、HEVC 等未复验项目仍按实记录。读[第 15 章](15-macos26-upgrade.md)与[本轮结果](../results/observed-2026-10-19-tahoe26-upgrade.json)。[第 14 章](14-macos26-preparation.md)和准备结果保留安装前快照；不要用旧“未安装”覆盖后续事实，也不要把旧 Darwin 24 Apple ID 修补或代理限制照搬到 26。
 
 2026-10-11 历史资料见 [1.13.0 验证及只回退驱动到 1.9.0](11-driver-upgrade-1.13.0.md)、[1.13.0 实测](../results/observed-2026-10-11-1.13.0.json)和[该轮最终 1.9.0 回退实测](../results/observed-2026-10-11-rollback-1.9.0.json)，后续更新阅读全文[通用升级流程](12-driver-upgrade-runbook.md)。1.13.0 的安装、43 项 payload、Metal / OpenCL、软件编解码像素与 GlideBeam 实际软件传输已验证；随后仅替换驱动回到 1.9.0，42 项 payload、Metal、GlideBeam NVENC 生产路径与实际 Windows 解码通过。该轮最终 1.9.0 完整冷备 / 冷启动及远控恢复通过；接手时仍需只读确认当前现场状态。
 
-后续 [Apple ID 排障](13-apple-id-troubleshooting.md)与[脱敏结果](../results/observed-2026-10-11-apple-id.json)记录了新的 EFI 修改：保留身份与 CPU VMM 位，仅增加两项 Darwin 24 字符串修补。用户确认系统设置登录成功；内置 QEMU 客户机代理因检测值变化而退出，正常关机 / 重启与 NVENC 传流另经复测。初装及驱动回退时的 Apple ID 未测和 EFI 未变结论属于各自历史阶段，不能拿它们覆盖本次后续事实。
+后续 [Apple ID 排障](13-apple-id-troubleshooting.md)与[脱敏结果](../results/observed-2026-10-11-apple-id.json)记录了 **15.8.1 / Darwin 24** 的 EFI 修改：保留身份与 CPU VMM 位，仅增加两项字符串修补。用户确认当时系统设置登录成功；该历史配置的内置 QEMU 客户机代理因检测值变化而退出，正常电源与 NVENC 传流另经复测。升级克隆已成对禁用旧两项修补、使用 RestrictEvents `sbvmm`；实测 `hv_vmm_present=1`、QGA 可用，不改原 15 的 EFI，不把旧修补扩至 Darwin 25。26 的 Apple ID 尚待用户验证。各轮结果保持日期边界，不能相互覆盖。
 
 [1.9.0 历史实测](../results/observed-2026-10-11-1.9.0.json)与 [1.10.0 实测](../results/observed-2026-10-11-1.10.0.json)保持原有范围。1.10.0～1.13.0 的源码不为 RTX 3060 注册硬编，当时生产远控需要 Apple 软件 H.264 回退；10 月 11 日 [GlideBeam v0.2.1](https://github.com/dixtdf/GlideBeam/releases/tag/v0.2.1)正式发布，四 ZIP 和 SHA 清单、架构、公开内容均经验证。GitHub 记录核对发现此前没有正式 0.2.0 release，历史章节中的“0.2.0 下载包”描述不作为当前发布证据；旧本地构建是否包含回退要看提交。当时本机保留 `6a6210e` 开发签名构建，虽显示 0.2.0 但已有回退，没有换装正式包或重置授权。这些是该日期的快照，不能据此判断后续现场应用版本；必须记录实际构建和签名来源。
 
@@ -26,7 +26,7 @@
 | 已有驱动升级或仅回退驱动 | 12 通用流程、11 本轮记录、04 固定包 | 固定资产 / manifest、完整冷备、payload 接口、逐项原生与实际远控验收 |
 | CPU 身份或序列号维护 | 03 身份、01 CPU | 本地 settings / 现有 EFI，不重新生成身份 |
 | Apple ID 验证失败 | 13 登录排障、03 身份 | 实际 EFI / en0 / GUID NVRAM、认证错误与 VMM sysctl，先核对再选择可回滚修补 |
-| 准备 / 试升 macOS 26 | 14 升级准备、12 通用流程、2.3.7 适配仓库 | 独立冷备 / 互斥克隆、Apple 签名包、RE 与旧补丁冲突审查、实际 Darwin 25 AuxKC 与 NVENC 复验 |
+| 准备 / 试升 macOS 26 | 15 实际升级及本轮结果、14 准备快照、12 通用流程 | 独立冷备 / 互斥克隆、RE 与旧补丁冲突、实际 Darwin 25 AuxKC / NVENC、GUI 与最终远控验收 |
 | 公开 GitHub | 07 发布、本文件 | check_publication.py，人工检查历史 / 截图 |
 
 脚本路径与章节链接见索引。读完脚本再执行；不要把 script 中的模板路径当作当前机器已经存在的文件。
@@ -88,7 +88,7 @@
 
 正常关闭 VM，确认两 PCI 功能为 VFIO 且无人占用，再调整 BAR1。脚本必须支持失败后重新绑定，不能把 `virsh` 放进 libvirt hook。另行验证 Unraid 重启后的配置 / 钩子恢复，不把手动成功当成自动启动成功。
 
-按第 04 章选择固定 payload、完整校验并安装四个 kext / KC / 用户态组件；初装需要 GPU 阶段 EFI，已有 VM 更新保留原 EFI。10 月 11 日的 1.9.0 H.264 NVENC 和 1.13.0 独立记录保留；10 月 19 日当前版本为 2.3.7 + 实验性补丁，按本文件开头的新记录接手。已有 VM 更新按第 12 章建立完整冷备、审查对应版本脚本、验证远控与电源。切换虚拟显示器前确认客户机远程服务与可见内容，不能以 VNC 端口可达代替桌面验收。
+按第 04 章选择固定 payload、完整校验并安装四个 kext / KC / 用户态组件；初装需要 GPU 阶段 EFI，已有 VM 更新保留原 EFI。10 月 11 日的 1.9.0 H.264 NVENC 和 1.13.0 独立记录保留；10 月 19 日升级克隆为实际 26 上的 2.3.7 os26 + 实验性补丁，按本文件开头及第 15 章接手。已有 VM 更新按第 12 章建立完整冷备、审查对应版本脚本、验证远控与电源。切换虚拟显示器前确认客户机远程服务与可见内容，不能以 VNC 端口可达代替桌面验收。
 
 退出条件：BAR1 8GiB、驱动加载、NVIDIA Metal 设备可枚举、原生复制 / 计算 / 渲染通过。物理屏幕和远程画面也应实际确认。
 
