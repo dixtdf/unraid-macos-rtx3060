@@ -6,6 +6,8 @@
 
 入口是根目录 [AGENTS.md](../AGENTS.md)，整体说明在 [README](../README.md)，机器索引在 [ai/knowledge.json](../ai/knowledge.json)，参考实测在 [results/observed-2026-10-09.json](../results/observed-2026-10-09.json)。
 
+**2026-10-23 后续核对：**官方从 2.4 起加入 RTX 20 / 30 的 H.264 / HEVC 硬编，最新正式版为 2.5.3；本机仍为已验收的 2.3.7 + 补丁，尚未升级官方新版。已清理被最终恢复点替代的两份升级前备份及安装介质，当次释放约 62.6 GiB；当前 26、原 15 和最终 26 冷备保留。见[更新与清理记录](16-upstream-native-nvenc-and-cleanup.md)。
+
 **2026-10-19 的接手入口：**隔离克隆已完成 **macOS Tahoe 26.7.1 / 25G241（Darwin 25.6.0）** 升级，保留 OpenCore 1.0.5，使用 **NullMoth 2.3.7 os26 + 实验性 RTX 3060 NVENC 补丁**。Metal 三项、H.264 3600 帧硬编像素资格通过（**60.004 FPS、编码 p95 3.502 ms**），重启后的 Metal / GlideBeam 30 帧硬编像素复验通过；**用户已确认光梭实际连接和控制正常**。首次设置完成，当前为纯显卡直通、EFI / 系统两盘、20 vCPU / 16 GiB，已移除 `-nvoff`、虚拟显示和安装介质。正常重启、关机及最终完整冷备通过，26 已重新开机；原 15.8.1 关闭保留，必须互斥。资格测试不等于端到端稳定 60 FPS；音频内容、26 上重新登录 Apple ID、HEVC 等未复验项目仍按实记录。读[第 15 章](15-macos26-upgrade.md)与[本轮结果](../results/observed-2026-10-19-tahoe26-upgrade.json)。[第 14 章](14-macos26-preparation.md)和准备结果保留安装前快照；不要用旧“未安装”覆盖后续事实，也不要把旧 Darwin 24 Apple ID 修补或代理限制照搬到 26。
 
 2026-10-11 历史资料见 [1.13.0 验证及只回退驱动到 1.9.0](11-driver-upgrade-1.13.0.md)、[1.13.0 实测](../results/observed-2026-10-11-1.13.0.json)和[该轮最终 1.9.0 回退实测](../results/observed-2026-10-11-rollback-1.9.0.json)，后续更新阅读全文[通用升级流程](12-driver-upgrade-runbook.md)。1.13.0 的安装、43 项 payload、Metal / OpenCL、软件编解码像素与 GlideBeam 实际软件传输已验证；随后仅替换驱动回到 1.9.0，42 项 payload、Metal、GlideBeam NVENC 生产路径与实际 Windows 解码通过。该轮最终 1.9.0 完整冷备 / 冷启动及远控恢复通过；接手时仍需只读确认当前现场状态。

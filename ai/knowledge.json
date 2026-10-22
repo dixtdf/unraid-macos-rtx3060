@@ -17,7 +17,8 @@
     "docs/14-macos26-preparation.md",
     "results/observed-2026-10-19-tahoe26-preparation.json",
     "docs/15-macos26-upgrade.md",
-    "results/observed-2026-10-19-tahoe26-upgrade.json"
+    "results/observed-2026-10-19-tahoe26-upgrade.json",
+    "docs/16-upstream-native-nvenc-and-cleanup.md"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -203,7 +204,8 @@
     "Driver-only downgrade must preserve current guest data; validate supported installer --payload, unmodified target manifests and truthful VERSION marker; full old-VDisk restoration is a separate recovery decision.",
     "Apple ID troubleshooting preserves identity and keys; verify actual EFI, en0 built-in status, GUID NVRAM, expected Apple UUID derivation, network/time and authentication logs first. Scoped VMM sysctl patches are optional, excluded from default templates, and require reviewed fixed sources, full cold backup, target matches and same-version ocvalidate.",
     "Preserve CPU VMM feature. In historical15.8.1/Darwin24 EFI, paired sysctl string swaps read hibernation count, require no hibernation, and make AppleQEMUGuestAgent exit. Only upgrade clone disables both swaps and uses RestrictEvents sbvmm; kern.hv_vmm_present=1 and QGA work in clone on26. Keep original15 EFI unchanged; never widen old patches to25. EFI-only rollback does not restore old guest disks.",
-    "Dedicated clone preserves Apple identity and NIC address and shares the physical GPU; never run it concurrently with original. Keep original15 EFI unchanged. Disable both old Darwin24 AppleID string swaps before enabling RestrictEvents sbvmm on24; never widen those swaps to25. Before launching the OS installer, offline-switch clone to nvoff EFI and first verify VNC/SSH on15. Reinstall matching official driver on actual26, load base NVRM before NVENC overlay, and requalify before promotion."
+    "Dedicated clone preserves Apple identity and NIC address and shares the physical GPU; never run it concurrently with original. Keep original15 EFI unchanged. Disable both old Darwin24 AppleID string swaps before enabling RestrictEvents sbvmm on24; never widen those swaps to25. Before launching the OS installer, offline-switch clone to nvoff EFI and first verify VNC/SSH on15. Reinstall matching official driver on actual26, load base NVRM before NVENC overlay, and requalify before promotion.",
+    "2026-10-23 cleanup supersedes historical backup inventory: two pre-upgrade checkpoints and Tahoe installer media were deleted after reference/mount/open-file guards; final26 full checkpoint and original15 VM retained. Official2.4+ announces native RTX20/30 H264/HEVC; installed driver remains2.3.7+overlay, so do not remove its live encoder library or treat newer releases as hardware-qualified. See chapter16."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
@@ -317,7 +319,20 @@
     "user_confirmed_glidebeam_working": true,
     "final_cold_checkpoint_complete": true,
     "normal_restart_shutdown_and_gpu_reuse_passed": true,
-    "full_feature_qualification_claimed": false
+    "full_feature_qualification_claimed": false,
+    "last_maintenance_2026_10_23": {
+      "upstream_latest_release": "2.5.3",
+      "upstream_commit": "75e2e28a55fef0e3c3001235c6d28c8cfae0019a",
+      "official_rtx20_rtx30_h264_hevc_announced_since": "2.4",
+      "installed_driver_unchanged": "2.3.7 plus existing experimental overlay",
+      "new_official_driver_hardware_tested": false,
+      "two_superseded_preupgrade_checkpoints_and_installer_media_deleted": true,
+      "final26_checkpoint_and_original15_vm_retained": true,
+      "freed_available_bytes_at_cleanup": 67228528640,
+      "paths": [
+        "docs/16-upstream-native-nvenc-and-cleanup.md"
+      ]
+    }
   },
   "historical_operation_2026_10_19_preparation": {
     "recorded_date": "2026-10-19",
