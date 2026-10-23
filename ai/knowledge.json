@@ -18,7 +18,8 @@
     "results/observed-2026-10-19-tahoe26-preparation.json",
     "docs/15-macos26-upgrade.md",
     "results/observed-2026-10-19-tahoe26-upgrade.json",
-    "docs/16-upstream-native-nvenc-and-cleanup.md"
+    "docs/16-upstream-native-nvenc-and-cleanup.md",
+    "docs/17-driver-upgrade-2.5.3.md"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -84,6 +85,14 @@
       "paths": [
         "docs/15-macos26-upgrade.md",
         "results/observed-2026-10-19-tahoe26-upgrade.json"
+      ]
+    },
+    {
+      "recorded_date": "2026-10-23",
+      "driver_package": "Official2.5.3 no overlay",
+      "scope": "Metal3tasks,3600 H264 hardware encoded/decoded/pixel frames60.005010960fps p953.222460ms,GlideBeam30 hardware pixels pass; normal reboot/client reconnect. User subsequent reboot2.5.3 confirmed. HEVC not qualified; no new VM backup at explicit user request.",
+      "paths": [
+        "docs/17-driver-upgrade-2.5.3.md"
       ]
     }
   ],
@@ -205,7 +214,8 @@
     "Apple ID troubleshooting preserves identity and keys; verify actual EFI, en0 built-in status, GUID NVRAM, expected Apple UUID derivation, network/time and authentication logs first. Scoped VMM sysctl patches are optional, excluded from default templates, and require reviewed fixed sources, full cold backup, target matches and same-version ocvalidate.",
     "Preserve CPU VMM feature. In historical15.8.1/Darwin24 EFI, paired sysctl string swaps read hibernation count, require no hibernation, and make AppleQEMUGuestAgent exit. Only upgrade clone disables both swaps and uses RestrictEvents sbvmm; kern.hv_vmm_present=1 and QGA work in clone on26. Keep original15 EFI unchanged; never widen old patches to25. EFI-only rollback does not restore old guest disks.",
     "Dedicated clone preserves Apple identity and NIC address and shares the physical GPU; never run it concurrently with original. Keep original15 EFI unchanged. Disable both old Darwin24 AppleID string swaps before enabling RestrictEvents sbvmm on24; never widen those swaps to25. Before launching the OS installer, offline-switch clone to nvoff EFI and first verify VNC/SSH on15. Reinstall matching official driver on actual26, load base NVRM before NVENC overlay, and requalify before promotion.",
-    "2026-10-23 cleanup supersedes historical backup inventory: two pre-upgrade checkpoints and Tahoe installer media were deleted after reference/mount/open-file guards; final26 full checkpoint and original15 VM retained. Official2.4+ announces native RTX20/30 H264/HEVC; installed driver remains2.3.7+overlay, so do not remove its live encoder library or treat newer releases as hardware-qualified. See chapter16."
+    "2026-10-23 cleanup supersedes historical backup inventory: two pre-upgrade checkpoints and Tahoe installer media were deleted after reference/mount/open-file guards; final26 full checkpoint and original15 VM retained. Official2.4+ announces native RTX20/30 H264/HEVC; installed driver remains2.3.7+overlay, so do not remove its live encoder library or treat newer releases as hardware-qualified. See chapter16.",
+    "Chapter16 installed2.3.7/not upgraded statements are historical before chapter17. Current official2.5.3 replaces old overlay; never reapply old patches. Explicit user request skipped new VM cold backup; official component fallback retained. GA10x loaded encoder provenance verified with unchanged native test gates. User PiKVM max50Hz does not establish remote60fps."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
@@ -289,14 +299,14 @@
     }
   },
   "current_operation": {
-    "recorded_date": "2026-10-19",
-    "task": "Completed authorized isolated macOS26 upgrade and H264 remote acceptance",
+    "recorded_date": "2026-10-23",
+    "task": "Completed official2.5.3 upgrade without new VM backup at user request",
     "current_macos": "26.7.1",
     "current_build": "25G241",
     "current_darwin": "25.6.0",
     "opencore": "1.0.5 RELEASE",
-    "latest_validated_driver_package": "NullMoth2.3.7 os26 plus fixed experimental RTX3060 NVENC overlay",
-    "stage": "Actual26.7.1 installed; first-run UI completed; GPU-only two-disk profile active. Metal and H264 NVENC pixel qualification passed, user confirmed GlideBeam works. Normal reboot/shutdown and final full cold checkpoint passed; restarted26, original15 retained off.",
+    "latest_validated_driver_package": "Official NullMoth2.5.3, no experimental overlay",
+    "stage": "Official2.5.3 loaded after normal reboot; native Metal/H264 qualification and GlideBeam production selftest passed; host restored/client reconnected; user subsequent reboot reconfirmed four2.5.3 kexts",
     "os_upgrade_executed": true,
     "original_macos15_preserved_and_shut_off": true,
     "gui_completion_pending": false,
@@ -312,8 +322,7 @@
       "HEVC and broader graphics API requalification"
     ],
     "paths": [
-      "docs/15-macos26-upgrade.md",
-      "results/observed-2026-10-19-tahoe26-upgrade.json"
+      "docs/17-driver-upgrade-2.5.3.md"
     ],
     "upgrade_complete": true,
     "user_confirmed_glidebeam_working": true,
@@ -325,14 +334,17 @@
       "upstream_commit": "75e2e28a55fef0e3c3001235c6d28c8cfae0019a",
       "official_rtx20_rtx30_h264_hevc_announced_since": "2.4",
       "installed_driver_unchanged": "2.3.7 plus existing experimental overlay",
-      "new_official_driver_hardware_tested": false,
+      "new_official_driver_hardware_tested": true,
       "two_superseded_preupgrade_checkpoints_and_installer_media_deleted": true,
       "final26_checkpoint_and_original15_vm_retained": true,
       "freed_available_bytes_at_cleanup": 67228528640,
       "paths": [
         "docs/16-upstream-native-nvenc-and-cleanup.md"
-      ]
-    }
+      ],
+      "subsequent_official_upgrade_completed": true
+    },
+    "new_vm_backup_skipped_by_explicit_user_request": true,
+    "current_monitor_observed": "PiKVM1920x1080@50.00Hz actually read after user reboot; earlier30Hz preserved as historical; no remote60fps claim"
   },
   "historical_operation_2026_10_19_preparation": {
     "recorded_date": "2026-10-19",
