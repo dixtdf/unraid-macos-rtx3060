@@ -225,7 +225,8 @@
     "Dedicated clone preserves Apple identity and NIC address and shares the physical GPU; never run it concurrently with original. Keep original15 EFI unchanged. Disable both old Darwin24 AppleID string swaps before enabling RestrictEvents sbvmm on24; never widen those swaps to25. Before launching the OS installer, offline-switch clone to nvoff EFI and first verify VNC/SSH on15. Reinstall matching official driver on actual26, load base NVRM before NVENC overlay, and requalify before promotion.",
     "2026-10-23 cleanup supersedes historical backup inventory: two pre-upgrade checkpoints and Tahoe installer media were deleted after reference/mount/open-file guards; final26 full checkpoint and original15 VM retained. Official2.4+ announces native RTX20/30 H264/HEVC; installed driver remains2.3.7+overlay, so do not remove its live encoder library or treat newer releases as hardware-qualified. See chapter16.",
     "Chapter16 installed2.3.7/not upgraded statements are historical before chapter17. Current official2.5.3 replaces old overlay; never reapply old patches. Explicit user request skipped new VM cold backup; official component fallback retained. GA10x loaded encoder provenance verified with unchanged native test gates. User PiKVM max50Hz does not establish remote60fps.",
-    "Chapter17 current2.5.3/skipped-backup statements are historical before chapter18. Current official2.6.6 installed after new full cold backup pre266-20261101 with qcow2 full-hash source/clone match; component-level rollback is backup-20261101-141557.OgpVrH containing2.5.3 components. GA10x probe reused unchanged; loaded encoder hash matches official manifest. Upstream baseline metadata still lists macOS26 unqualified, so this acceptance binds only this machine. PiKVM max50Hz still does not establish remote60fps."
+    "Chapter17 current2.5.3/skipped-backup statements are historical before chapter18. Current official2.6.6 installed after new full cold backup pre266-20261101 with qcow2 full-hash source/clone match; component-level rollback is backup-20261101-141557.OgpVrH containing2.5.3 components. GA10x probe reused unchanged; loaded encoder hash matches official manifest. Upstream baseline metadata still lists macOS26 unqualified, so this acceptance binds only this machine. PiKVM max50Hz still does not establish remote60fps.",
+    "Pre266, final26, the15.8.1 VM and2.3.x-era restore points named in older chapters were deleted2026-11-01 evening under explicit user approval after post266-480g verified; sole full-machine restore point is post266-480g-20261101 (2.6.6+480GiB). Never attempt restore via deleted paths; verify actual inventory first. After any qcow2 grow across a GPT boundary, check both GPT headers LastUsableLBA and stale backup remnants before trusting diskutil (-69743/-69519 are the symptoms); guest raw writes to boot media fail EBUSY, so repair offline from the host via qemu-nbd + sgdisk -e which preserves entries and GUIDs. Report freed space only as df byte delta, never du sums of reflink backups."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
@@ -316,9 +317,10 @@
     "current_darwin": "25.6.0",
     "opencore": "1.0.5 RELEASE",
     "latest_validated_driver_package": "Official NullMoth2.6.6, no experimental overlay",
-    "stage": "Official2.6.6 loaded after one normal reboot without kext reapproval; native Metal/H264 qualification and GlideBeam production selftest passed; host restored; user client reconnect confirmed normal",
+    "stage": "Official2.6.6 loaded after one normal reboot without kext reapproval; native Metal/H264 qualification and GlideBeam production selftest passed; host restored; user client reconnect confirmed normal; same-day480GiB expansion, post266-480g cold backup and full old-backup cleanup completed",
     "os_upgrade_executed": true,
-    "original_macos15_preserved_and_shut_off": true,
+    "original_macos15_preserved_and_shut_off": false,
+    "original_macos15_vm_deleted_2026_11_01_by_user_approval_metadata_archived": true,
     "gui_completion_pending": false,
     "temporary_nvoff_and_virtual_vga": false,
     "kern_hv_vmm_present": 1,
@@ -360,6 +362,7 @@
       "tarball_sha256": "dbb0f5c2a18ccc97dfdf57ca14488b0ea713c15608f684a0a4283e88c676ab6e",
       "new_full_cold_backup_dir": "/mnt/disk1/vm/backups/macOS-26.7.1-RTX3060-TRIAL-pre266-20261101",
       "cold_backup_qcow2_full_sha256_match_both_sides": "ef5e383e83bdaebc583411a28af500885e73124bd9fcc81f469c28d9c10ac137",
+      "pre266_backup_superseded_and_deleted_same_day_after_post266_verified": true,
       "component_fallback_dir": "/Library/NullMoth/backup-20261101-141557.OgpVrH",
       "one_reboot_four_kexts_266_no_reapproval": true,
       "loaded_ga10x_encoder_sha256": "92985c5286ddc5c5dfb77ec04ea3364d92524e461abf93fb3646c4fe302488cb",
@@ -367,6 +370,29 @@
       "smoke_report_sha256": "36bbda98ade7310ca613fbb73cb122f9a188fa17b34c9c6fefa356891836d2a5",
       "user_confirmed_glidebeam_reconnect_normal": true,
       "quarantine_fallback_and_scripts_all_retained": true,
+      "paths": [
+        "docs/18-driver-upgrade-2.6.6.md"
+      ]
+    },
+    "expansion_cleanup_2026_11_01": {
+      "virtual_disk_resized_240_to_480_gib": true,
+      "qcow2_virtual_size_bytes": 515396075520,
+      "apfs_container_ceiling_bytes": 515186319360,
+      "guest_df_data_volume": "480Gi total /291Gi avail (38% used)",
+      "gpt_inconsistency_found": "diskutil first grow left LastUsableLBA stale at503316446 in both headers plus stale backup GPT at sectors503316447..503316479; guest raw writes refused EBUSY on boot media; gpt tool has no resize",
+      "gpt_offline_repair_method": "VM off, host qemu-nbd connect, sgdisk -e rewrote both headers LastUsableLBA ->1006632926 preserving entries/GUIDs, dd zeroed33 stale sectors, sgdisk -v clean, qemu-img check clean",
+      "diskutil_error_codes_seen_before_repair": "-69743 fill-same-size and -69519 gap/usable-space, persisted across VM reboots",
+      "preexisting_disk2s1_damage_recorded": "3 inodes (2526480/2534078/2535039) compressed-file Resource Fork xattr missing; predates expansion, unchanged by it, container fsck exit0; repair needs Recovery boot, not done this round",
+      "post266_backup_dir": "/mnt/disk1/vm/backups/macOS-26.7.1-RTX3060-TRIAL-post266-480g-20261101",
+      "post266_qcow2_full_sha256_match_both_sides": "609daaabb571a8ca101b1ec30cce0e8baee3e59594e7d60e00374c478e9169bf",
+      "post266_added_480gib_virtual_size_assertion": true,
+      "deleted_items": "domains/macOS-15.8.1-RTX3060 (virsh undefine --nvram) plus backups nvenc236-20261018-01, nvenc237-20261019-01, TRIAL-final-20261019-01, TRIAL-pre266-20261101",
+      "macos15_metadata_archive_dir": "/mnt/disk1/vm/preparation/macos15-archive-20261101",
+      "deletion_record_file": "/mnt/disk1/vm/preparation/macos15-archive-20261101/DELETION-RECORD.private.txt",
+      "freed_bytes_df_delta": 64740229120,
+      "du_sums_inflated_by_reflink_sharing": true,
+      "kept_items": "Windows11, rr, isos/, preparation/ incl. archive, post266-480g backup; in-VM component fallback backup-20261101-141557.OgpVrH",
+      "user_asked_to_skip_slow_full_hash_but_it_had_already_completed": true,
       "paths": [
         "docs/18-driver-upgrade-2.6.6.md"
       ]

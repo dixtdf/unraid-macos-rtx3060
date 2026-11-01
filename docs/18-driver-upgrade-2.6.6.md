@@ -68,3 +68,40 @@
 - 上游 `BASELINE-IDENTITY.json` 仍将 macOS 26 标为未资格；本记录是本机（macOS 26.7.1 / 25G241 + RTX 3060 GA106 LHR，PCI `10de:2504`）的独立证据，不改变上游资格状态，也不外推到其他机器、显卡或 macOS 版本。
 - 结果绑定 v2.6.6（提交 `470e391e8cf8d7e499cdabfa7f2daadb6e14bcfd`）与上文全部摘要；新发行包出现时不得沿用本轮结论。
 - 用户已于升级当日（2026-11-01）通过光梭客户端实际重连并确认远控体验正常；该确认记录为用户主观体验，不替代上文任何未验收项，用户对 2.3.7 / 2.5.3 的既往确认也不与本次混同。
+
+## 同日后续：480G 扩容与全部旧备份清理
+
+以下发生在 2.6.6 验收闭环之后（当日下午），用户先批准"先备份 2.6.6 再全删"，随后追加"顺便把 mac 硬盘扩容到 480G"。执行顺序调整为：扩容 → 对扩容后的好状态做冷备 → 验证后删除全部旧恢复点，保证最终恢复点覆盖 2.6.6 + 480G 状态。
+
+### 扩容过程与 GPT 修复
+
+- 主机侧（停机窗口一）：优雅关机 → `qemu-img check` 无错误 → `qemu-img resize` 240 GiB → **480 GiB**（257,698,037,760 → 515,396,075,520 字节）→ 再次 check 无错误 → 重启。注意：运行中的镜像 `qemu-img info` 必须加 `-U`（共享写锁），首次尝试因未加而失败，未改动任何东西。
+- 客机侧第一轮 `diskutil apfs resizeContainer disk2 0` 只扩了 **+7.5 GB**（容器 250.0 → 257.5 GB），顺带把备份 GPT 迁到了新盘尾；之后连续失败：填充模式报 **-69743**（"新尺寸必须不同于现有尺寸"），显式 515396075520b 与精确 determined maximum 515185291264b 都报 **-69519**（gap 缺失/超出分区图可用空间），完整重启 VM 后填充模式仍 -69743。
+- 根因（只读 dd/xxd 逐字段核对 GPT 头）：主 GPT 头与迁移后的备份 GPT 头的 **LastUsableLBA 都仍是旧 240G 边界的 503316446**，且旧备份 GPT（条目数组扇区 503316447–503316478 + 头 503316479，含 `EFI PART` 魔数）残留在盘中部——diskutil 因此认为可用空间已到头。这是第一轮操作在"跨旧边界扩容"这一边缘场景下留下的不一致，不是本次误操作。
+- 客机内无法直接修：`/dev/disk1` 与 `/dev/rdisk1` 写打开都被拒（**EBUSY**，启动介质保护，root 也不行），`gpt` 无 resize 子命令。
+- 改为主机侧离线修复（停机窗口二）：优雅关机 → `modprobe nbd` + `qemu-nbd --connect` → 断言两头 LastUsable 确为 503316446、残留魔数确在 503316479 → **`sgdisk -e`** 重写两份 GPT 头（LastUsable → 1,006,632,926，分区条目、类型 GUID、磁盘 GUID 全部原样保留）→ `dd` 清零 33 个残留扇区 → `sgdisk -v` "No problems found" → 断开 nbd → `qemu-img check` 无错误 → 启动。
+- 客机最终一轮 `resizeContainer disk2 0` **成功**：APFS Physical Store 257,488,281,600 → **515,186,319,360 字节**；操作内嵌 fsck 退出码 0、容器 OK。
+- 验证：容器 ceiling 515,186,319,360 B、无剩余 free space 条目；df Data 卷 **480Gi 总 / 291Gi 可用（38%）**；四 kext 仍 2.6.6；RemoteHost 正常；console 用户 mac；系统 26.7.1 / 25G241。
+- 如实记录：disk2s1（mac-Data）存在 **3 个 inode 的预先存在轻微损坏**（id 2526480 / 2534078 / 2535039，压缩文件的 Resource Fork xattr 缺失；live 模式 fsck 跳过对应 deferred repairs）。扩容前后一致、非本轮造成、不影响容器级检查通过；修复需 Recovery 启动，本轮未做。
+
+### post266-480g 冷备份（当前唯一整机恢复点）
+
+- 目录 `/mnt/disk1/vm/backups/macOS-26.7.1-RTX3060-TRIAL-post266-480g-20261101/`，脚本在 pre266 版基础上**新增 480 GiB 虚拟大小断言**（源与克隆的 qemu-img info 都必须读出 515396075520 字节），其余护栏沿用。
+- qcow2（虚拟 480 GiB / 实际约 198 GiB）reflink 复制后**全量 SHA-256 双侧一致**：`609daaabb571a8ca101b1ec30cce0e8baee3e59594e7d60e00374c478e9169bf`。元数据三对哈希一致：OpenCore raw `b1a33b6a473e7d3f90603b8c09db29739f4a1989401c2106511343459d8025c2`、UEFI-VARS `2fb93bec13930bde03a5b575483b769e7f94641c87e08f875471f51c751dacd2`、NVRAM fd `4c5cede91fd33ab4709b89d8f4addfeb0cd4251d734472ad7ae8bb371850e964`。
+- 停机 16:53 → 完成 17:19:20 → 重启后健康检查通过（17:24）。中途用户曾要求跳慢速全量哈希尽快推进；该要求发出时全量哈希恰好已完成，**验证没有降级**，如实记录。
+
+### 删除（护栏 + df 权威差值）
+
+- 删除前先把 15.8.1 VM 的 KB 级元数据存档到 `/mnt/disk1/vm/preparation/macos15-archive-20261101/`（36M：live dumpxml、NVRAM fd、OVMF_VARS、全部顶层 XML/日志、scripts/diagnostics/efi/logs 目录、未存档大件清单、SHA256SUMS）。
+- 护栏全部通过后才动手：post266 COMPLETE + 哈希一致、TRIAL running、15 VM shutoff、无挂载引用、TRIAL 域 XML 不引用任何删除目标、无对应 qemu 进程、存档存在。
+- 删除范围（用户批准 A–E 全删）：15.8.1 VM 域目录（591G du，含 457G checkpoints）+ `virsh undefine --nvram`；nvenc236-20261018-01（103G）；nvenc237-20261019-01（104G）；TRIAL-final-20261019-01（101G）；TRIAL-pre266-20261101（190G）。Windows11、rr、isos/（65G）、preparation/ 不在范围，未动。
+- **实际释放以 df 字节差值为准**：450,527,936,512 → 515,268,165,632 字节，即 **64,740,229,120 字节（约 60.3 GiB）**。远小于 du 名义合计（约 1.1 TB），因为各备份间大量 XFS reflink 共享块被重复计数；这与第 16 章清理时的结论一致。删除后 disk1 使用率 78% → 75%（481G 可用）。
+- `DELETION-RECORD.private.txt` 已写入上述存档目录。
+
+### 对"回退与保留"的影响（历史化）
+
+上文三级回退中第 2、3 级（pre266-20261101、final-20261019-01、15.8.1 VM 与 2.3.x 冷备）**已于同日按用户批准删除，成为历史条目**；今后恢复只核对实际磁盘库存，不按已删除路径尝试。当前回退层级为：
+
+1. 组件级：`sudo ./uninstall.sh /Library/NullMoth/backup-20261101-141557.OgpVrH` 回到官方 2.5.3（不受影响，仍在 VM 内）；
+2. 整机级：**仅** `post266-480g-20261101`（2.6.6 + 480G 好状态，全量哈希验证）。它与其他保留备份同在一块物理盘上，不是抗整盘故障的异地副本。
+
