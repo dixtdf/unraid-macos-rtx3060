@@ -20,7 +20,8 @@
     "results/observed-2026-10-19-tahoe26-upgrade.json",
     "docs/16-upstream-native-nvenc-and-cleanup.md",
     "docs/17-driver-upgrade-2.5.3.md",
-    "docs/18-driver-upgrade-2.6.6.md"
+    "docs/18-driver-upgrade-2.6.6.md",
+    "docs/19-driver-upgrade-2.7.2.md"
   ],
   "reference_baseline": {
     "recorded_date": "2026-10-09",
@@ -103,13 +104,22 @@
       "paths": [
         "docs/18-driver-upgrade-2.6.6.md"
       ]
+    },
+    {
+      "recorded_date": "2026-11-08",
+      "driver_package": "Official2.7.2 no overlay",
+      "scope": "No new VM cold backup at explicit user request (partial reflink checkpoint stopped and deleted); CHECK=1 pass; one normal reboot loaded four NVIDIA kexts2.7.2 plus NMXAudio1.0.0 without GUI approval; Metal3tasks,3600 H264 hardware encoded/decoded/pixel frames60.003952092fps p952.828556ms,60/60 forced IDR,GlideBeam30 hardware pixels pass; NVENC libraries byte-identical to2.6.6. HEVC not qualified; audio enumeration only.",
+      "paths": [
+        "docs/19-driver-upgrade-2.7.2.md"
+      ]
     }
   ],
   "version_compatibility": {
     "1.10.0": "Historical reference RTX3060 VM validation: H264/HEVC hardware encoder creation unavailable(-12908), software encode to NVIDIA hardware decode pixels passed. Companion GlideBeam fallback source uses AppleSW H264 and Windows GPU decode. Application version0.2.0 is a local-build field, not evidence of a formal release; verify exact commit/binary.",
     "1.9.0": "Last release checked through 1.13.0 with Ampere H264 NVENC registration. Fresh driver-only downgrade completed; GlideBeam production H264 NVENC pixels pass with coded height1088 and Windows GPU real 30s/1374frames. OpenCL clSetKernelArg=-49, both kernels unexecuted; HEVC HW encode severe pixel failure; Apple SW H264 to NVIDIA HW decode YMAE11.3773 marginally below old threshold12 and not broad correctness.",
     "1.13.0": "Blackwell-only H264/HEVC hardware encoder registration remains; RTX3060 RequireHardware returns -12908. Apple software encode to NVIDIA hardware decode pixels pass. GlideBeam software H264 to Windows GPU decode passes in a 30s owned-animation test; no input or VNC desktop-content acceptance in this run.",
-    "2.3.7-with-3060-nvenc-overlay": "Dated evidence exists separately for15.8.1 and completed isolated26.7.1/25G241 upgrade. On26, official os26 NVAccel/AuxKC and loaded-NVRM-guarded experimental overlay pass Metal3tasks, strict3600-frame H264 pixels60.004018745fps/p953.502125ms and post-reboot GlideBeam30-frame hardware pixels. User confirmed actual remote control; normal power and final same-disk full cold checkpoint passed. Original15 qualification failures remain recorded. Audio content, AppleID, native VNC and HEVC are not requalified; no client60fps claim."
+    "2.3.7-with-3060-nvenc-overlay": "Dated evidence exists separately for15.8.1 and completed isolated26.7.1/25G241 upgrade. On26, official os26 NVAccel/AuxKC and loaded-NVRM-guarded experimental overlay pass Metal3tasks, strict3600-frame H264 pixels60.004018745fps/p953.502125ms and post-reboot GlideBeam30-frame hardware pixels. User confirmed actual remote control; normal power and final same-disk full cold checkpoint passed. Original15 qualification failures remain recorded. Audio content, AppleID, native VNC and HEVC are not requalified; no client60fps claim.",
+    "2.7.2": "Official no-overlay package installed over2.6.6 on2026-11-08. NVENC H264 libraries and GA10x encoder hash are byte-identical to2.6.6; Metal three tasks and strict3600-frame qualification passed at60.004fps/p952.829ms with60/60 forced IDR and GlideBeam hardware pixels. Four NVIDIA kexts plus new NMXAudio1.0.0 loaded after one reboot. No new whole-machine cold backup was taken at explicit user request; post266-480g remains the only full restore point. HEVC and audio content/latency remain unqualified."
   },
   "routes": [
     {
@@ -226,7 +236,8 @@
     "2026-10-23 cleanup supersedes historical backup inventory: two pre-upgrade checkpoints and Tahoe installer media were deleted after reference/mount/open-file guards; final26 full checkpoint and original15 VM retained. Official2.4+ announces native RTX20/30 H264/HEVC; installed driver remains2.3.7+overlay, so do not remove its live encoder library or treat newer releases as hardware-qualified. See chapter16.",
     "Chapter16 installed2.3.7/not upgraded statements are historical before chapter17. Current official2.5.3 replaces old overlay; never reapply old patches. Explicit user request skipped new VM cold backup; official component fallback retained. GA10x loaded encoder provenance verified with unchanged native test gates. User PiKVM max50Hz does not establish remote60fps.",
     "Chapter17 current2.5.3/skipped-backup statements are historical before chapter18. Current official2.6.6 installed after new full cold backup pre266-20261101 with qcow2 full-hash source/clone match; component-level rollback is backup-20261101-141557.OgpVrH containing2.5.3 components. GA10x probe reused unchanged; loaded encoder hash matches official manifest. Upstream baseline metadata still lists macOS26 unqualified, so this acceptance binds only this machine. PiKVM max50Hz still does not establish remote60fps.",
-    "Pre266, final26, the15.8.1 VM and2.3.x-era restore points named in older chapters were deleted2026-11-01 evening under explicit user approval after post266-480g verified; sole full-machine restore point is post266-480g-20261101 (2.6.6+480GiB). Never attempt restore via deleted paths; verify actual inventory first. After any qcow2 grow across a GPT boundary, check both GPT headers LastUsableLBA and stale backup remnants before trusting diskutil (-69743/-69519 are the symptoms); guest raw writes to boot media fail EBUSY, so repair offline from the host via qemu-nbd + sgdisk -e which preserves entries and GUIDs. Report freed space only as df byte delta, never du sums of reflink backups."
+    "Pre266, final26, the15.8.1 VM and2.3.x-era restore points named in older chapters were deleted2026-11-01 evening under explicit user approval after post266-480g verified; sole full-machine restore point is post266-480g-20261101 (2.6.6+480GiB). Never attempt restore via deleted paths; verify actual inventory first. After any qcow2 grow across a GPT boundary, check both GPT headers LastUsableLBA and stale backup remnants before trusting diskutil (-69743/-69519 are the symptoms); guest raw writes to boot media fail EBUSY, so repair offline from the host via qemu-nbd + sgdisk -e which preserves entries and GUIDs. Report freed space only as df byte delta, never du sums of reflink backups.",
+    "Chapter18 current2.6.6 statements are historical before chapter19. Current official2.7.2 installed2026-11-08 with no new whole-machine cold backup at explicit user request (a started pre272 reflink checkpoint was stopped and its partial directory deleted); post266-480g-20261101 remains the sole full-machine restore point. Component rollback backup-20261108-094635.vEkHlk holds2.6.6 components. NMXAudio1.0.0 is now part of the installed set on macOS26 and loaded directly because SIP Kext Signing is disabled, without GUI approval. The deleted15.8.1 domain also broke the BAR hook log path on the next start; the hook is now scoped to the TRIAL VM and logs inside its own directory, and backups of qemu.d hooks must not remain executable in that directory."
   ],
   "known_limits": [
     "Fresh 1.9.0 HEVC hardware encode API succeeds but pixels severely fail. OpenCL argument setup=-49 and kernels do not execute. Legacy AppleSW H264 input to NVIDIA decode has YMAE11.3773; production GlideBeam1088-layout is independently pixel-tested.",
@@ -310,14 +321,14 @@
     }
   },
   "current_operation": {
-    "recorded_date": "2026-11-01",
-    "task": "Completed official2.6.6 upgrade after new full cold backup",
+    "recorded_date": "2026-11-08",
+    "task": "Completed official2.7.2 upgrade without a new cold backup, at explicit user request",
     "current_macos": "26.7.1",
     "current_build": "25G241",
     "current_darwin": "25.6.0",
     "opencore": "1.0.5 RELEASE",
-    "latest_validated_driver_package": "Official NullMoth2.6.6, no experimental overlay",
-    "stage": "Official2.6.6 loaded after one normal reboot without kext reapproval; native Metal/H264 qualification and GlideBeam production selftest passed; host restored; user client reconnect confirmed normal; same-day480GiB expansion, post266-480g cold backup and full old-backup cleanup completed",
+    "latest_validated_driver_package": "Official NullMoth2.7.2, no experimental overlay",
+    "stage": "Official2.7.2 loaded after one normal reboot with four NVIDIA kexts2.7.2 plus NMXAudio1.0.0, no GUI approval; native Metal/H264 qualification and GlideBeam production selftest passed; host restored; no new whole-machine cold backup at explicit user request, so post266-480g remains the sole full restore point; user reconnect after this round not yet confirmed",
     "os_upgrade_executed": true,
     "original_macos15_preserved_and_shut_off": false,
     "original_macos15_vm_deleted_2026_11_01_by_user_approval_metadata_archived": true,
@@ -328,17 +339,18 @@
     "legacy_darwin24_apple_id_string_swaps_disabled_only_in_clone": true,
     "restrict_events_sbvmm_enabled_in_clone": true,
     "pending": [
-      "Optional actual audio-content and latency requalification",
+      "NMXAudio actual audio content, channel and latency requalification (device enumeration only)",
+      "User GlideBeam client reconnect confirmation after the2.7.2 upgrade",
       "User AppleID/AppStore/iMessage/FaceTime verification on26",
       "Native VNC fallback remains unqualified",
       "HEVC and broader graphics API requalification"
     ],
     "paths": [
-      "docs/18-driver-upgrade-2.6.6.md"
+      "docs/19-driver-upgrade-2.7.2.md"
     ],
     "upgrade_complete": true,
-    "user_confirmed_glidebeam_working": true,
-    "final_cold_checkpoint_complete": true,
+    "user_confirmed_glidebeam_working": false,
+    "final_cold_checkpoint_complete": false,
     "normal_restart_shutdown_and_gpu_reuse_passed": true,
     "full_feature_qualification_claimed": false,
     "last_maintenance_2026_10_23": {
@@ -355,7 +367,37 @@
       ],
       "subsequent_official_upgrade_completed": true
     },
-    "new_vm_backup_skipped_by_explicit_user_request": false,
+    "new_vm_backup_skipped_by_explicit_user_request": true,
+    "upgrade_2026_11_08": {
+      "upstream_release": "2.7.2",
+      "upstream_commit": "18ba05f38b5eadea8b5ae05834bb51c61fb4c5c3",
+      "published_at": "2026-11-05T07:34:07Z",
+      "tarball_sha256": "928557fece27637b1184f5655833566e7d516b22708cc341b28d555055d8e50e",
+      "sha256sums_sha256": "3cc2fb39cdc3be5d62a6b69389296b3a2aff0b1d4f55b98f0970d71933ee6cc6",
+      "archive_entries": 134,
+      "internal_sha256sums_entries": 77,
+      "check1_preflight_pass": true,
+      "no_new_cold_backup_at_user_request": true,
+      "partial_pre272_backup_started_then_stopped_and_deleted": "/mnt/disk1/vm/backups/macOS-26.7.1-RTX3060-TRIAL-pre272-20261108",
+      "sole_full_machine_restore_point": "/mnt/disk1/vm/backups/macOS-26.7.1-RTX3060-TRIAL-post266-480g-20261101",
+      "component_fallback_dir": "/Library/NullMoth/backup-20261108-094635.vEkHlk",
+      "nmxaudio_installed_version": "1.0.0",
+      "nmxaudio_loaded_without_gui_approval": true,
+      "nvaccel_os26_sha256": "ba056eb32d9a0aa9aad736da79ace069f2bdd826153c4275e7d0bd6f08c99b21",
+      "nvtmldriver_sha256": "1eb7ce5b0aab1b39f1c53d2f90826088db21e4d554a8ff4290670d8083a5af6c",
+      "loaded_ga10x_encoder_sha256": "92985c5286ddc5c5dfb77ec04ea3364d92524e461abf93fb3646c4fe302488cb",
+      "nvenc_libraries_identical_to_2_6_6": true,
+      "qualification_fps": 60.00395209230008,
+      "encode_ms_p95": 2.828556,
+      "forced_idr_passed": 60,
+      "qualification_report_sha256": "4f859fdc31341a97b0177eac0dc43ca58a008c27be43534dbce958537a3a7f1a",
+      "smoke_report_sha256": "b6e4556b851f12d2be69eeac498ae8415011ef90676e780bf0c8cfe1bc5d44bd",
+      "metal_report_sha256": "617d24edb024d5e03fea2d972d79abd6e55305ec7a0b96333686b104a2157c5e",
+      "host_bar_hook_fixed": "50-macos-rtx3060-bar scoped to TRIAL and log moved out of the deleted15.8.1 directory; backup kept outside qemu.d because libvirt executes every executable file there",
+      "paths": [
+        "docs/19-driver-upgrade-2.7.2.md"
+      ]
+    },
     "upgrade_2026_11_01": {
       "upstream_release": "2.6.6",
       "upstream_commit": "470e391e8cf8d7e499cdabfa7f2daadb6e14bcfd",
@@ -397,7 +439,7 @@
         "docs/18-driver-upgrade-2.6.6.md"
       ]
     },
-    "current_monitor_observed": "PiKVM1920x1080@50.00Hz read again after2.6.6 upgrade; earlier30Hz preserved as historical; no remote60fps claim"
+    "current_monitor_observed": "PiKVM1920x1080@50.00Hz unchanged after2.7.2 upgrade; the encoded qualification is60fps and is not a remote60fps claim"
   },
   "historical_operation_2026_10_19_preparation": {
     "recorded_date": "2026-10-19",
